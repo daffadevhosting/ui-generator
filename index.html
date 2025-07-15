@@ -489,8 +489,9 @@ async function handleTransformClick() {
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || `Request gagal dengan status ${res.status}`);
+      const errData = await res.json();
+      globalAlert(`${errData.error} ${errData.action || ""}`, errData.type || "error");
+      return;
     }
 
     const data = await res.json();
@@ -528,9 +529,9 @@ async function handleTransformClick() {
 
 
     } catch (err) {
-      outputEl.textContent = "❌ Error saat panggil AI: " + err.message;
+      outputEl.textContent = "❌ Error saat panggil AI";
       document.getElementById("ai-reasoning-box").classList.add("hidden");
-  }
+    }
 }
   
   // =================================================================

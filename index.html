@@ -12,69 +12,9 @@
   <link type="application/atom+xml" rel="alternate" href="https://daffadevhosting.github.io/daffadevhosting/feed.xml" title="UI Generator" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="/daffadevhosting/assets/css/tailwind.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<style type="text/tailwindcss">
-    @layer utilities {
-      .glass {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .glassmorph {
-        background: rgba(17, 25, 40, 0.5);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-    }
-
-    body {
-      font-family: 'Space Grotesk', sans-serif;
-    }
-    .scrollbar-hidden {
-      scrollbar-width: none;      /* Firefox */
-      -ms-overflow-style: none;   /* IE 10+ */
-    }
-
-    .scrollbar-hidden::-webkit-scrollbar {
-      display: none;              /* Chrome, Safari */
-    }
-    #preview-modal {
-      backdrop-filter: blur(4px);
-    }
-    #preview-frame {
-      background-color: white;
-    }
-    #preview-modal.show #preview-content {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    #modal {
-      transition: opacity 300ms ease-in-out;
-    }
-    #edit-box,
-    #code-wrapper {
-      transition: opacity 0.3s ease;
-    }
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .popular-badge {
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-  </style>
+  
 <!-- Highlight.js CSS theme -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <!-- Highlight.js library -->
@@ -209,7 +149,7 @@ if (!lastSeen || now - lastSeen > 24 * 60 * 60 * 1000) {
 
       <aside id="sidebar" class="w-full md:w-20 bg-[#121212] p-4 flex align-center md:flex-col gap-6 border-b md:border-b-0 md:border-r border-gray-700">
   <div class="flex justify-between items-center w-full md:block">
-    <h1 class="text-sm font-bold hidden md:block">L Y Я A</h1>
+    <h1 class="text-2xl mb-3 font-bold hidden md:block">L Y Я A</h1>
     <div class="bg-[#2A2A2A] glass text-sm rounded px-2 py-1 md:w-fit">v.2.5</div>
     <a href="/daffadevhosting/pricing" class="text-sm bg-pink-700 md:hidden block text-white px-3 py-1 rounded">Upgrade PRO</a>
   </div>
@@ -307,7 +247,6 @@ if (!lastSeen || now - lastSeen > 24 * 60 * 60 * 1000) {
   <div class="flex items-center gap-3">
   
     <a href="/daffadevhosting/pricing" class="text-sm bg-pink-700 hidden md:block text-white px-3 py-1 rounded">Upgrade PRO</a>
-  
     <button
       onclick="downloadHTML()"
       id="download-button"
@@ -323,6 +262,7 @@ if (!lastSeen || now - lastSeen > 24 * 60 * 60 * 1000) {
       class="cursor-pointer md:hidden w-8 h-8 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 text-center font-medium rounded-full text-sm p-2"
       title="Preview"
     ><i class="fa-solid fa-eye"></i></button>
+  
     <img src="https://placehold.co/32x32" alt="Profile" class="rounded-full w-8 h-8">
   </div>
 </div>
@@ -780,6 +720,132 @@ if (frame?.src?.startsWith("blob:")) {
         &copy; 2025 UI Generator by <a href="https://daffadevhosting.github.io" target="_blank" class="font-bold text-blue-400">L Y Я A</a>. All rights reserved.
       </footer>
       </main>
+        <!-- Chat Container -->
+<div id="chat-container"
+  class="hidden fixed sm:bottom-20 sm:right-6 sm:w-[380px] sm:h-auto sm:rounded-2xl w-screen h-screen md:top-4 md:right-4 z-[60] bg-[#1a1d22] border border-gray-700 text-white shadow-2xl backdrop-blur-md flex flex-col overflow-hidden">
+
+  <!-- Chat Header -->
+  <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white flex items-center">
+    <div class="assistant-avatar w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+      <i class="fas fa-robot text-purple-600 text-xl"></i>
+    </div>
+    <div>
+      <h2 class="font-bold">L Y Я A</h2>
+      <p class="text-xs opacity-80">Personal Assistant</p>
+    </div>
+    <div class="ml-auto flex space-x-2">
+      <button id="chatToggle" class="text-white cursor-pointer text-xl ml-auto">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Messages -->
+  <div class="flex-1 overflow-y-auto p-4 bg-gray-50 text-gray-800">
+    <div class="message-box rounded-2xl p-4 bg-white shadow-md">
+      <div class="flex items-start mb-2">
+        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+          <i class="fas fa-robot text-purple-600 text-sm"></i>
+        </div>
+        <div>
+          <div class="font-medium text-purple-800">L Y Я A</div>
+          <div class="text-xs text-gray-500"><i class="far fa-clock mr-1"></i> Just now</div>
+        </div>
+      </div>
+      <div class="pl-10 space-y-3">
+        <p>Selamat pagi 🌞! Saya <span class="font-bold text-purple-600">L Y Я A</span>, siap bantu kamu hari ini.</p>
+        <p>Ingin upgrade akun ?</p>
+
+        <div>
+          <p class="text-sm text-gray-600 mb-2 flex items-center">
+            <i class="fas fa-compass mr-2 text-purple-500"></i>
+            Kamu bisa coba perintah ini:
+          </p>
+
+          <div class="space-y-2">
+            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
+              <div class="w-5 h-5 rounded-full bg-purple-200 flex items-center justify-center mr-2">
+                <span class="text-purple-700 text-xs font-bold">1</span>
+              </div>
+              <span class="font-medium">Ketik <span class="text-purple-700">pricelist</span> → untuk lihat daftar harga</span>
+            </button>
+            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
+              <div class="w-5 h-5 rounded-full bg-purple-200 flex items-center justify-center mr-2">
+                <span class="text-purple-700 text-xs font-bold">2</span>
+              </div>
+              <span class="font-medium">Ketik <span class="text-purple-700">halo</span> atau <span class="text-purple-700">L Y Я A</span> → untuk menyapa aku</span>
+            </button>
+            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
+              <div class="w-5 h-5 rounded-full bg-purple-200 flex items-center justify-center mr-2">
+                <span class="text-purple-700 text-xs font-bold">3</span>
+              </div>
+              <span class="font-medium">Ketik <span class="text-purple-700">bantuan</span> → untuk menampilkan panduan lengkap</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="border-t p-4 bg-white">
+    <div class="relative">
+      <input 
+        type="text" 
+        placeholder="Ketik pesan Anda..." 
+        class="w-full py-3 px-4 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      >
+      <button class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-center">
+        <i class="fas fa-paper-plane text-sm"></i>
+      </button>
+    </div>
+    <div class="flex justify-between mt-2 text-xs text-gray-500">
+      <div>
+        <button class="hover:text-purple-600"><i class="fas fa-microphone mr-1"></i> Voice</button>
+      </div>
+      <div>
+        <button class="hover:text-purple-600"><i class="fas fa-image mr-1"></i> Gallery</button>
+        <button class="hover:text-purple-600 ml-3"><i class="fas fa-attach mr-1"></i> File</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const chatBtn = document.getElementById("chat-toggle");
+  const closeBtn = document.getElementById("chatToggle");
+  const chatBox = document.getElementById("chat-container");
+  let isChatOpen = false;
+
+  function openChat() {
+    chatBox.classList.remove("hidden");
+    gsap.fromTo(chatBox, 
+      { opacity: 0, y: 100, scale: 0.95 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.7)" }
+    );
+    isChatOpen = true;
+  }
+
+  function closeChat() {
+    gsap.to(chatBox, {
+      opacity: 0, y: 100, scale: 0.95, duration: 0.3, ease: "power2.in",
+      onComplete: () => chatBox.classList.add("hidden")
+    });
+    isChatOpen = false;
+  }
+
+  if (chatBtn) {
+    chatBtn.addEventListener("click", () => isChatOpen ? closeChat() : openChat());
+  }
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeChat);
+  }
+});
+</script>
+
         <div id="termsModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden items-center justify-center p-4 animate__animated animate__fadeIn">
   <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-2xl shadow-xl border border-gray-700 max-w-3xl w-full p-8 relative animate__animated animate__zoomIn animate__faster">
     <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-700">
@@ -911,6 +977,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
       
+      <!-- Tombol Chat -->
+      <button id="chat-toggle" class="fixed bottom-6 right-6 z-50 bg-gradient-to-br from-indigo-600 to-purple-700 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white text-2xl hover:scale-110 transition">
+        <i class="fas fa-comment-dots"></i>
+      </button>
     </body>
 <script>
 function globalAlert(message = "Terjadi sesuatu!", type = "info", duration = 5000) {

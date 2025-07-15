@@ -10,7 +10,7 @@
   <link rel="canonical" href="https://daffadevhosting.github.io/daffadevhosting/">
 
   <link type="application/atom+xml" rel="alternate" href="https://daffadevhosting.github.io/daffadevhosting/feed.xml" title="UI Generator" />
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -131,7 +131,7 @@ const MIDTRANS_WORKER_URL = "https://midtranspay.androidbutut.workers.dev/snap";
                                         </span>
                                         <span class="js-close-icon ml-2 text-red-400 text-2xl">✕</span>
                                     </div>
-                                    <a href="https://github.com/daffadevhosting/daffadevhosting.github.io" target="_blank" class="inline-block mt-3 px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition duration-300">
+                                    <a href="https://daffadevhosting.github.io" target="_blank" class="inline-block mt-3 px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition duration-300">
                                         @daffadevhosting
                                     </a>
                                 </div>
@@ -169,21 +169,64 @@ gsap.fromTo(
   }
 );
 </script>
-      <aside id="sidebar" class="w-full md:w-20 bg-[#121212] p-4 flex md:flex-col gap-6 border-b md:border-b-0 md:border-r border-gray-700">
+      <div id="promo-banner" class="absolute hidden md:bottom-4 md:right-4 top-4 z-[9999] w-full max-w-2xl px-4">
+  <div class="bg-gradient-to-r from-blue-800 via-purple-700 to-pink-700 text-white shadow-lg rounded-lg flex items-start sm:items-center justify-between gap-4 p-4 animate__animated animate__fadeInDown">
+    <div class="flex-1 text-sm sm:text-base">
+      <strong class="text-white font-semibold">🎉 Promo Juli!</strong> Upgrade ke <span class="text-yellow-300 font-bold">Pro Medium</span> hanya <span class="text-green-300 font-bold">Rp 24.000</span> dan nikmati model AI premium.
+    </div>
+    <button onclick="dismissPromoBanner()" class="cursor-pointer text-white hover:text-red-300 transition text-xl">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+</div>
+<script>
+function showPromoBanner() {
+  const banner = document.getElementById("promo-banner");
+  if (banner) {
+    banner.classList.remove("hidden");
+    banner.classList.add("animate__fadeInUp");
+  }
+}
+
+function dismissPromoBanner() {
+  const banner = document.getElementById("promo-banner");
+  if (banner) {
+    banner.classList.add("animate__fadeOutDown");
+    setTimeout(() => banner.remove(), 500);
+  }
+}
+
+const lastSeen = localStorage.getItem("promoShownAt");
+const now = Date.now();
+if (!lastSeen || now - lastSeen > 24 * 60 * 60 * 1000) {
+  setTimeout(() => {
+    showPromoBanner();
+    localStorage.setItem("promoShownAt", now);
+  }, 30000);
+}
+</script>
+
+
+      <aside id="sidebar" class="w-full md:w-20 bg-[#121212] p-4 flex align-center md:flex-col gap-6 border-b md:border-b-0 md:border-r border-gray-700">
   <div class="flex justify-between items-center w-full md:block">
     <h1 class="text-sm font-bold hidden md:block">L Y Я A</h1>
     <div class="bg-[#2A2A2A] glass text-sm rounded px-2 py-1 md:w-fit">v.2.5</div>
-    <button class="text-sm bg-pink-700 md:hidden block text-white px-3 py-1 rounded">Upgrade PRO</button>
+    <a href="/daffadevhosting/pricing" class="text-sm bg-pink-700 md:hidden block text-white px-3 py-1 rounded">Upgrade PRO</a>
   </div>
   
-  <button class="cursor-pointer block mx-auto mt-1 md:mt-4">
-    <i class="fa-solid fa-robot text-2xl"></i>
+  <button title="Setting" class="cursor-pointer text-sm text-center text-gray-400 hover:text-blue-400 transition underline">
+    <i class="fa-solid fa-gear text-2xl"></i>
   </button>
   
+  <button onclick="openTermsModal()" title="term & faq" class="cursor-pointer text-sm text-center text-gray-400 hover:text-blue-400 transition underline">
+  <i class="fa-solid fa-circle-question text-2xl"></i>
+  </button>
+  <a href="https://github.com/daffadevhosting/daffadevhosting/" target="_blank" title="Github" class="cursor-pointer text-sm text-center text-gray-400 hover:text-blue-400 transition underline">
+    <i class="fa-brands fa-github text-3xl"></i>
+  </a>
 </aside>
 <div id="model-selector"
-  class="fixed z-50 bottom-20 md:left-24 left-4 right-4 md:right-auto w-auto max-w-xs bg-[#1E1E1E] backdrop-blur-md rounded-xl shadow-xl border border-gray-700 p-4 space-y-4 opacity-0 scale-95 pointer-events-none"
->
+  class="fixed z-50 bottom-20 md:left-24 left-4 right-4 md:right-auto w-auto max-w-xs bg-[#1E1E1E] backdrop-blur-md rounded-xl shadow-xl border border-gray-700 p-4 space-y-4 opacity-0 scale-95 pointer-events-none">
   <h3 class="text-white text-sm font-semibold">Pilih Model AI</h3>
   <div class="space-y-2 text-sm text-gray-300">
     <label class="flex items-center gap-2 cursor-pointer">
@@ -203,9 +246,54 @@ gsap.fromTo(
       deepseek-r1 - Full Page Elegan <span class="text-yellow-500 text-xs ml-1">EXPERT only</span>
     </label>
   </div>
+<div id="coding-mode-toggle" class="mt-4 bg-[#1E1E1E] p-3 rounded-lg border border-gray-700">
+  <label class="flex items-center text-sm text-gray-300 gap-2">
+    <input type="checkbox" id="enable-coding-mode" class="cursor-pointer accent-blue-500">
+    Mode Coding (React, Vue, JSX)
+  </label>
+  <p class="text-xs text-gray-500 mt-1">Mode ini akan membuat AI merespons dengan format kode yang lebih kompleks.</p>
+</div>
   <button id="close-model-selector"
     class="cursor-pointer w-full mt-2 text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 rounded shadow">Simpan</button>
 </div>
+<script>
+  const codingModeCheckbox = document.getElementById("enable-coding-mode");
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const saved = localStorage.getItem("codingMode") || "off";
+    codingModeCheckbox.checked = saved === "on";
+
+    codingModeCheckbox.addEventListener("change", () => {
+      localStorage.setItem("codingMode", codingModeCheckbox.checked ? "on" : "off");
+    });
+  });
+
+  async function sendPrompt(prompt, selectedModelId) {
+    const isCodingMode = localStorage.getItem("codingMode") === "on";
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          model: selectedModelId,
+          mode: "initial",
+          coding: isCodingMode // ✅ dikirim ke backend
+        })
+      });
+
+      const data = await res.json();
+      console.log("✅ AI Response:", data.output);
+      return data.output;
+    } catch (err) {
+      console.error("❌ Error:", err.message);
+    }
+  }
+
+  // Contoh trigger manual:
+  // sendPrompt("buatkan halaman login react", "@cf/meta/llama-3.2-3b-instruct");
+</script>
 
 
       <main class="glassmorph flex-1 flex flex-col overflow-hidden">
@@ -220,6 +308,21 @@ gsap.fromTo(
   
     <a href="/daffadevhosting/pricing" class="text-sm bg-pink-700 hidden md:block text-white px-3 py-1 rounded">Upgrade PRO</a>
   
+    <button
+      onclick="downloadHTML()"
+      id="download-button"
+      class="cursor-pointer md:hidden w-8 h-8 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 text-center font-medium rounded-full text-sm p-2"
+      title="Download HTML"
+    >
+      <i class="fa-solid fa-download"></i>
+    </button>
+
+    <button
+      onclick="showPreview()"
+      id="preview-button"
+      class="cursor-pointer md:hidden w-8 h-8 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 text-center font-medium rounded-full text-sm p-2"
+      title="Preview"
+    ><i class="fa-solid fa-eye"></i></button>
     <img src="https://placehold.co/32x32" alt="Profile" class="rounded-full w-8 h-8">
   </div>
 </div>
@@ -241,14 +344,14 @@ gsap.fromTo(
 }
 </style>
 <!-- AI Thinking Box -->
- <div class="h-[20px]">
+ <div class="h-[25px]">
 <div id="ai-reasoning-box" class="text-sm text-blue-300 font-medium hidden flex items-center gap-2 animate-pulse">
   <i class="fa-solid fa-robot"></i>
   <span id="ai-reasoning-text">AI sedang berpikir untukmu...</span>
 </div>
 </div>
 
-  <div class="relative bg-[#2A2A2A] glass h-full max-h-118 md:max-h-68 overflow-x-hidden overflow-y-auto rounded-md p-4 font-mono text-sm text-gray-300 scrollbar-hidden">
+  <div class="relative bg-[#2A2A2A] glass h-full max-h-150 md:max-h-68 overflow-x-hidden overflow-y-auto rounded-md p-4 font-mono text-sm text-gray-300 scrollbar-hidden">
   <pre class="mb-4 overflow-x-hidden text-wrap"><code id="ai-output">... (code AI response ) ...</code></pre>
     
   </div>
@@ -260,7 +363,7 @@ gsap.fromTo(
       <textarea id="prompt" class="w-full bg-[#2A2A2A] rounded-md px-2 py-2 text-sm text-white placeholder-gray-400" rows="3" placeholder="Masukkan instruksi desain..."></textarea>
       <button
         id="transform-button"
-        class="cursor-pointer w-8 h-8 absolute bottom-3 right-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2"
+        class="cursor-pointer w-10 h-10 absolute bottom-3 right-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2"
         title="Generate UI"
       ><i class="fa-solid fa-wand-magic-sparkles"></i>
       </button>
@@ -356,7 +459,7 @@ async function handleTransformClick() {
   const outputEl = document.getElementById("ai-output");
 
   if (!prompt) {
-    alert("Masukkan instruksi nya dulu, boss!");
+    globalAlert("Masukkan instruksi nya dulu, boss!", "info", 3000);
     return;
   }
 
@@ -366,6 +469,7 @@ async function handleTransformClick() {
   // 🔄 Tampilkan loading info
   const reasonText = document.getElementById("ai-reasoning-text");
   const reasonBox = document.getElementById("ai-reasoning-box");
+  const isCodingMode = localStorage.getItem("codingMode") === "on";
 
   if (reasonText && reasonBox) {
     reasonText.textContent = `AI ${selectedModelId.toUpperCase()} sedang bekerja untukmu...`;
@@ -379,7 +483,8 @@ async function handleTransformClick() {
       body: JSON.stringify({
         prompt,
         mode: "initial",
-        model: selectedModelId
+        model: selectedModelId,
+        coding: isCodingMode 
       })
     });
 
@@ -397,25 +502,34 @@ async function handleTransformClick() {
     animateTyping(outputEl, html);
     renderAIOutput(html);
 
-const watermarkBox = document.getElementById("ai-model-watermark");
+    const watermarkBox = document.getElementById("ai-model-watermark");
 
-if (watermarkBox) {
-  const isFree = selectedModelId.includes("qwen");
-  if (isFree) {
-    watermarkBox.innerHTML = `✨ Kamu sedang menggunakan <span class="font-semibold text-blue-400">Qwen (model gratis)</span>. 
-    Hasil desain lebih optimal tersedia di model Pro seperti 
-    <span class="text-yellow-400">LLaMA</span>, <span class="text-orange-400">Mistral</span>, dan <span class="text-green-400">DeepSeek</span>.
-    <a href="/pricing" class="underline hover:text-white ml-1">Upgrade sekarang →</a>`;
-    watermarkBox.classList.remove("hidden");
-  } else {
-    watermarkBox.innerHTML = "";
-    watermarkBox.classList.add("hidden");
-  }
-}
+    if (watermarkBox) {
+      const isFree = selectedModelId.includes("qwen");
+      if (isFree) {
+        watermarkBox.innerHTML = `✨ Kamu sedang menggunakan <span class="font-semibold text-blue-400">Qwen (model gratis)</span>. 
+        Hasil desain lebih optimal tersedia di model Pro seperti 
+        <span class="text-yellow-400">LLaMA</span>, <span class="text-orange-400">Mistral</span>, dan <span class="text-green-400">DeepSeek</span>.
+        <a href="/pricing" class="underline hover:text-white ml-1">Upgrade sekarang →</a>`;
+        watermarkBox.classList.remove("hidden");
+      } else {
+        watermarkBox.innerHTML = "";
+        watermarkBox.classList.add("hidden");
+      }
+    }
 
-  } catch (err) {
-    outputEl.textContent = "❌ Error saat panggil AI: " + err.message;
-    document.getElementById("ai-reasoning-box").classList.add("hidden");
+    const promptInput = document.getElementById("prompt");
+    promptInput.classList.add("opacity-50");
+    setTimeout(() => {
+      promptInput.value = "";
+      promptInput.classList.remove("opacity-50");
+    }, 300);
+    document.getElementById("prompt").focus();
+
+
+    } catch (err) {
+      outputEl.textContent = "❌ Error saat panggil AI: " + err.message;
+      document.getElementById("ai-reasoning-box").classList.add("hidden");
   }
 }
   
@@ -443,7 +557,7 @@ if (watermarkBox) {
     document.getElementById("transform-button").addEventListener("click", handleTransformClick);
     
     // --- Logika panel setting (GSAP) ---
-    const gearBtn = document.querySelector("aside .fa-robot")?.parentElement;
+    const gearBtn = document.querySelector("aside .fa-gear")?.parentElement;
     const modelSelector = document.getElementById("model-selector");
     const closeModelBtn = document.getElementById("close-model-selector");
     let panelVisible = false;
@@ -533,7 +647,7 @@ if (watermarkBox) {
     ></iframe>
     <button
       onclick="closeModal()"
-      class="absolute top-4 right-4 z-50 bg-red-600 hover:bg-red-700 text-white text-sm rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+      class="absolute cursor-pointer top-4 right-4 z-50 bg-red-600 hover:bg-red-700 text-white text-sm rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
       title="Tutup Preview"
     >
       <i class="fa-solid fa-xmark text-lg"></i>
@@ -576,7 +690,7 @@ function renderAIOutput(htmlString) {
 function downloadHTML() {
   const content = document.getElementById("output-editable")?.value?.trim();
   if (!content) {
-    alert("Belum ada konten HTML untuk disimpan!");
+    globalAlert("Belum ada konten HTML untuk disimpan!", "error", 3000);
     return;
   }
 
@@ -614,7 +728,7 @@ function toggleEditorMode() {
 function saveEditedOutput() {
   const textarea = document.getElementById("output-editable");
   const updatedCode = textarea.value.trim();
-  if (!updatedCode) return alert("Isi HTML tidak boleh kosong!");
+  if (!updatedCode) return globalAlert("Isi HTML tidak boleh kosong!", "error", 3000);
 
   currentHTML = updatedCode;
 
@@ -629,8 +743,16 @@ function saveEditedOutput() {
 function showPreview() {
   const modal = document.getElementById("modal");
   const frame = document.getElementById("previewFrame");
-  frame.srcdoc = currentHTML;
 
+  // Bikin ulang blob URL dari currentHTML
+  const blob = new Blob([currentHTML], { type: 'text/html' });
+  const blobURL = URL.createObjectURL(blob);
+
+  // Update src iframe pakai blob
+  frame.removeAttribute("srcdoc"); // clear srcdoc biar ga tabrakan
+  frame.setAttribute("src", blobURL);
+
+  // Tampilkan modal
   modal.classList.remove("hidden");
   modal.classList.remove("opacity-0");
   modal.classList.add("opacity-100");
@@ -641,6 +763,11 @@ function closeModal() {
   modal.classList.remove("opacity-100");
   modal.classList.add("opacity-0");
 
+const frame = document.getElementById("previewFrame");
+if (frame?.src?.startsWith("blob:")) {
+  URL.revokeObjectURL(frame.src); // bersihkan memory
+}
+
   setTimeout(() => {
     modal.classList.add("hidden");
   }, 300); // harus sama dengan durasi transition-nya
@@ -649,9 +776,119 @@ function closeModal() {
 
         </div>
               <footer class="text-sm text-center text-gray-500 py-6  border-t border-gray-700">
-        &copy; 2025 UI Generator by <span class="font-bold text-blue-400">L Y Я A</span>. All rights reserved.
+        &copy; 2025 UI Generator by <a href="https://daffadevhosting.github.io" target="_blank" class="font-bold text-blue-400">L Y Я A</a>. All rights reserved.
       </footer>
       </main>
+        <div id="termsModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden items-center justify-center p-4 animate__animated animate__fadeIn">
+  <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-2xl shadow-xl border border-gray-700 max-w-3xl w-full p-8 relative animate__animated animate__zoomIn animate__faster">
+    <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-700">
+      <h2 class="text-3xl font-extrabold text-blue-400 drop-shadow-lg flex items-center">
+        <i class="fa-solid fa-file-contract mr-3 text-blue-300"></i> Syarat & Ketentuan
+      </h2>
+      <button onclick="closeTermsModal()" class="cursor-pointer text-gray-400 hover:text-red-500 transition-colors duration-200 text-2xl" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="space-y-8 max-h-[60vh] overflow-y-auto pr-4 custom-scrollbar">
+      <div>
+        <h3 class="text-xl font-bold text-yellow-300 mb-3 flex items-center">
+          <i class="fa-solid fa-info-circle mr-2 text-yellow-200"></i> Ketentuan Umum
+        </h3>
+        <ul class="list-disc pl-8 text-base text-gray-300 space-y-3 leading-relaxed">
+          <li>Layanan ini memanfaatkan kecerdasan buatan untuk menghasilkan kode <strong>HTML/React/TailwindCSS</strong> yang inovatif.</li>
+          <li>Pengguna <strong>gratis</strong> mendapatkan batas 2x generasi per hari menggunakan model <strong>Qwen</strong>.</li>
+          <li>Akses ke model AI yang lebih canggih seperti <strong>Mistral</strong> & <strong>DeepSeek</strong> tersedia dengan paket berbayar.</li>
+          <li>Seluruh kode yang dihasilkan merupakan produk AI dan tidak bergaransi — <strong>peninjauan manual sangat disarankan</strong>.</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-xl font-bold text-green-300 mb-3 flex items-center">
+          <i class="fa-solid fa-cogs mr-2 text-green-200"></i> Cara Menggunakan
+        </h3>
+        <ol class="list-decimal pl-8 text-base text-gray-300 space-y-3 leading-relaxed">
+          <li>Masukkan perintah desain atau komponen yang Anda inginkan pada kolom input yang tersedia.</li>
+          <li>Pilih model AI preferensi Anda melalui pengaturan (ikon gear) untuk hasil optimal.</li>
+          <li>Tekan tombol <strong>“Generate UI”</strong> dan biarkan AI kami bekerja magic-nya.</li>
+          <li>Hasilnya akan segera muncul di panel editor; Anda bisa melihat pratinjau, mengedit, atau menyimpannya.</li>
+          <li>Gunakan tombol <strong>“Download”</strong> jika Anda ingin menyimpan hasil akhir sebagai file HTML.</li>
+        </ol>
+      </div>
+
+      <div class="text-sm text-gray-500 mt-6 pt-5 border-t border-gray-700 italic text-center">
+        Dengan melanjutkan penggunaan layanan ini, Anda secara otomatis dianggap telah membaca dan menyetujui seluruh syarat & ketentuan yang berlaku di atas.
+      </div>
+    </div>
+
+    <div class="mt-8 text-center">
+      <button onclick="closeTermsModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-10 py-3 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
+        Saya Mengerti & Setuju
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom Scrollbar for Webkit browsers (Chrome, Safari) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #2d3748; /* Darker background for the track */
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #4a5568; /* Slightly lighter thumb color */
+    border-radius: 10px;
+    border: 2px solid #2d3748; /* Border to create a "floating" effect */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #636b77; /* Even lighter on hover */
+  }
+
+  /* Fallback for Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin; /* "auto" or "thin" */
+    scrollbar-color: #4a5568 #2d3748; /* thumb and track color */
+  }
+</style>
+
+<script>
+  function openTermsModal() {
+    document.getElementById('termsModal').classList.remove('hidden');
+    document.getElementById('termsModal').classList.add('flex');
+    // Remove previous animation classes to allow re-triggering on subsequent opens
+    const modalContent = document.querySelector('#termsModal > div');
+    modalContent.classList.remove('animate__fadeInDown', 'animate__zoomOut');
+    modalContent.classList.add('animate__zoomIn', 'animate__faster');
+  }
+
+  function closeTermsModal() {
+    const modalContent = document.querySelector('#termsModal > div');
+    modalContent.classList.remove('animate__zoomIn');
+    modalContent.classList.add('animate__zoomOut'); // Add zoomOut animation
+
+    // Hide the modal after the animation completes
+    modalContent.addEventListener('animationend', function handler() {
+      document.getElementById('termsModal').classList.remove('flex');
+      document.getElementById('termsModal').classList.add('hidden');
+      modalContent.removeEventListener('animationend', handler); // Remove listener to prevent multiple calls
+    });
+  }
+
+  // Optional: Close modal when clicking outside
+  document.getElementById('termsModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+      closeTermsModal();
+    }
+  });
+</script>
+    <!-- Global Alert Container -->
+    <div id="global-alert-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] w-full max-w-xl px-4 pointer-events-none"></div>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -674,5 +911,58 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
       
     </body>
+<script>
+function globalAlert(message = "Terjadi sesuatu!", type = "info", duration = 5000) {
+  const icons = {
+    success: "✅",
+    warning: "⚠️",
+    error: "❌",
+    info: "💡",
+  };
 
+  const bgColors = {
+    success: "from-green-700 to-green-500",
+    warning: "from-yellow-600 to-yellow-400",
+    error: "from-red-700 to-red-500",
+    info: "from-blue-700 to-blue-500",
+  };
+
+  const icon = icons[type] || icons.info;
+  const bg = bgColors[type] || bgColors.info;
+
+  const container = document.getElementById("global-alert-container");
+  if (!container) return;
+
+  const id = "alert-" + Date.now();
+  const alertEl = document.createElement("div");
+  alertEl.id = id;
+  alertEl.className =
+    `bg-gradient-to-r ${bg} text-white shadow-xl rounded-lg flex items-start sm:items-center justify-between gap-4 p-4 mb-4 animate__animated animate__fadeInDown pointer-events-auto`;
+
+  alertEl.innerHTML = `
+    <div class="flex-1 text-sm sm:text-base">
+      <strong class="font-bold">${icon}</strong>
+      <span class="ml-1">${message}</span>
+    </div>
+    <button onclick="dismissGlobalAlert('${id}')" class="text-white hover:text-gray-300 transition text-xl">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  `;
+
+  container.appendChild(alertEl);
+
+  // Auto dismiss
+  setTimeout(() => {
+    dismissGlobalAlert(id);
+  }, duration);
+}
+
+function dismissGlobalAlert(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add("animate__fadeOutUp");
+    setTimeout(() => el.remove(), 500);
+  }
+}
+</script>
 </html>

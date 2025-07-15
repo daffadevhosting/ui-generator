@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="id-ID">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UI Generator | UI Transformer</title>
+  <meta name="description" content="UI Transformer by L Y Я A - Konversi desain ke Tailwind CSS dengan AI.">
+  <link rel="canonical" href="https://daffadevhosting.github.io/generate/">
+
+  <link type="application/atom+xml" rel="alternate" href="https://daffadevhosting.github.io/generate/feed.xml" title="UI Generator" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style type="text/tailwindcss">
+    @layer utilities {
+      .glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .glassmorph {
+        background: rgba(17, 25, 40, 0.5);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .scrollbar-hidden {
+      scrollbar-width: none;      /* Firefox */
+      -ms-overflow-style: none;   /* IE 10+ */
+    }
+
+    .scrollbar-hidden::-webkit-scrollbar {
+      display: none;              /* Chrome, Safari */
+    }
+    #preview-modal {
+      backdrop-filter: blur(4px);
+    }
+    #preview-frame {
+      background-color: white;
+    }
+    #preview-modal.show #preview-content {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #modal {
+      transition: opacity 300ms ease-in-out;
+    }
+    #edit-box,
+    #code-wrapper {
+      transition: opacity 0.3s ease;
+    }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .popular-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+  </style>
+<!-- Highlight.js CSS theme -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<!-- Highlight.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<!-- HTML language support -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+  
+  <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-i2KW02MfN9duiyJ9"></script>
+<!-- Firebase SDKs from CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCEjcpfj58QbeFXXdAwygzvuGjH6l-xgFk",
+  authDomain: "glitchlab-ai.firebaseapp.com",
+  projectId: "glitchlab-ai",
+  appId: "1:807047215761:web:416168acd2080ab80b1d30"
+};
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Export untuk digunakan di modul lain (jika diperlukan)
+        window.getAuth = () => auth;
+        window.getFirestore = () => db;
+
+const MIDTRANS_WORKER_URL = "https://midtranspay.androidbutut.workers.dev/snap";
+</script>
+
+</head>
+
+    <body class="bg-[#1E1E1E] text-white font-sans h-screen flex flex-col md:flex-row overflow-hidden">
+      <div id="ai-loader" class="fixed inset-0 z-50 flex items-center justify-center" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);background-attachment: fixed;">
+    <div id="ai-orb" class="lg:w-1/3 flex justify-center">
+                    <div class="relative">
+                        <div class="w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center animate-float">
+                            <div class="glassmorph w-56 h-56 md:w-72 md:h-72 rounded-full bg-slate-800/80 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="inline-flex items-center mb-3">
+                                        <span class="text-3xl md:text-4xl font-bold text-white high-contrast-shadow">
+                                          <span style="opacity: 0;">L</span>
+                                          <span style="opacity: 0;"> </span>
+                                          <span style="opacity: 0;">Y</span>
+                                          <span style="opacity: 0;"> </span>
+                                          <span style="opacity: 0;">Я</span>
+                                          <span style="opacity: 0;"> </span>
+                                          <span style="opacity: 0;">A</span>
+                                        </span>
+                                        <span class="js-close-icon ml-2 text-red-400 text-2xl">✕</span>
+                                    </div>
+                                    <a href="https://github.com/daffadevhosting/daffadevhosting.github.io" target="_blank" class="inline-block mt-3 px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition duration-300">
+                                        @daffadevhosting
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-10 -right-10 w-16 h-16 bg-yellow-500/30 blur-2xl animate-pulse rounded-full"></div>
+                        <div class="absolute bottom-10 -left-10 w-16 h-16 bg-purple-500/30 blur-2xl animate-pulse rounded-full"></div>
+                    </div>
+                </div>
+</div>
+<script>
+const lyraText = document.querySelector(".high-contrast-shadow");
+const letters = gsap.utils.toArray(lyraText.children);
+
+gsap.to(letters, {
+  opacity: 1,
+  stagger: 0.2, // Delay antar animasi setiap huruf (dalam detik)
+  duration: 0.8,
+  ease: "power2.inOut",
+  delay: 1 // Delay sebelum animasi keseluruhan dimulai
+});
+
+gsap.fromTo(
+  ".js-close-icon",
+  {
+    x: -50, // Mulai 50 piksel di kiri posisi aslinya
+    opacity: 0
+  },
+  {
+    x: 0,     // Bergeser ke posisi aslinya (kanan)
+    opacity: 1,
+    duration: 0.8,
+    ease: "power2.out",
+    delay: 0.3 // Delay sebelum animasi ikon dimulai (opsional)
+  }
+);
+</script>
+      <aside id="sidebar" class="w-full md:w-20 bg-[#121212] p-4 flex md:flex-col gap-6 border-b md:border-b-0 md:border-r border-gray-700">
+  <div class="flex justify-between items-center w-full md:block">
+    <h1 class="text-sm font-bold hidden md:block">L Y Я A</h1>
+    <div class="bg-[#2A2A2A] glass text-sm rounded px-2 py-1 md:w-fit">v.2.5</div>
+    <button class="text-sm bg-pink-700 md:hidden block text-white px-3 py-1 rounded">Upgrade PRO</button>
+  </div>
+  
+  <button class="cursor-pointer block mx-auto mt-1 md:mt-4">
+    <i class="fa-solid fa-robot text-2xl"></i>
+  </button>
+  
+</aside>
+<div id="model-selector"
+  class="fixed z-50 bottom-20 md:left-24 left-4 right-4 md:right-auto w-auto max-w-xs bg-[#1E1E1E] backdrop-blur-md rounded-xl shadow-xl border border-gray-700 p-4 space-y-4 opacity-0 scale-95 pointer-events-none"
+>
+  <h3 class="text-white text-sm font-semibold">Pilih Model AI</h3>
+  <div class="space-y-2 text-sm text-gray-300">
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="basic" class="accent-blue-500" checked />
+      qwen1.5-0 - Element Sederhana <span class="text-yellow-500 text-xs ml-1">FREE 2x only</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="medium" class="accent-blue-500" disabled />
+      llama-3.2-1b - Komponen Responsive <span class="text-yellow-500 text-xs ml-1">MEDIUM only</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="advanced" class="accent-blue-500" disabled />
+      mistral-small-3.1 - Layout Modular <span class="text-yellow-500 text-xs ml-1">ADVANCE only</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="expert" class="accent-blue-500" disabled />
+      deepseek-r1 - Full Page Elegan <span class="text-yellow-500 text-xs ml-1">EXPERT only</span>
+    </label>
+  </div>
+  <button id="close-model-selector"
+    class="cursor-pointer w-full mt-2 text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 rounded shadow">Simpan</button>
+</div>
+
+
+      <main class="glassmorph flex-1 flex flex-col overflow-hidden">
+        <div id="topbar" class="flex items-center justify-between p-4 border-b border-gray-700">
+  <div class="text-sm text-gray-400 truncate">
+    <a href="/generate/">
+    <i class="fa-solid fa-code text-blue-400"></i>
+    UI Generator <span class="font-bold text-blue-400">(L Y Я A)</span>
+    </a>
+  </div>
+  <div class="flex items-center gap-3">
+  
+    <a href="/generate/pricing" class="text-sm bg-pink-700 hidden md:block text-white px-3 py-1 rounded">Upgrade PRO</a>
+  
+    <img src="https://placehold.co/32x32" alt="Profile" class="rounded-full w-8 h-8">
+  </div>
+</div>
+
+                  <div class="flex flex-col lg:flex-row flex-1 overflow-auto scrollbar-hidden">
+          <div id="input-panel" class="relative w-full h-full lg:w-1/2 p-4 space-y-4 overflow-auto border-b lg:border-b-0 lg:border-r border-gray-700 scrollbar-hidden">
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #3b82f6;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+</style>
+<!-- AI Thinking Box -->
+ <div class="h-[20px]">
+<div id="ai-reasoning-box" class="text-sm text-blue-300 font-medium hidden flex items-center gap-2 animate-pulse">
+  <i class="fa-solid fa-robot"></i>
+  <span id="ai-reasoning-text">AI sedang berpikir untukmu...</span>
+</div>
+</div>
+
+  <div class="relative bg-[#2A2A2A] glass h-full max-h-118 md:max-h-68 overflow-x-hidden overflow-y-auto rounded-md p-4 font-mono text-sm text-gray-300 scrollbar-hidden">
+  <pre class="mb-4 overflow-x-hidden text-wrap"><code id="ai-output">... (code AI response ) ...</code></pre>
+    
+  </div>
+  <div class="sticky bottom-0 bg-[#121212] border border-gray-700 rounded-xl p-4">
+    <p class="text-xs text-gray-400 text-left">
+      Model aktif: <span id="active-model-label" class="text-green-300">llama-3.2-1b</span>
+    </p>
+    <div class="relative mt-2">
+      <textarea id="prompt" class="w-full bg-[#2A2A2A] rounded-md px-2 py-2 text-sm text-white placeholder-gray-400" rows="3" placeholder="Masukkan instruksi desain..."></textarea>
+      <button
+        id="transform-button"
+        class="cursor-pointer w-8 h-8 absolute bottom-3 right-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2"
+        title="Generate UI"
+      ><i class="fa-solid fa-wand-magic-sparkles"></i>
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+  // =================================================================
+  // KONFIGURASI & VARIABEL GLOBAL
+  // =================================================================
+  const API_URL = "https://ui-transform.daffadev.workers.dev/generate";
+  const greetingHTML = `<!doctype html>
+<html lang="id-ID">
+  <head>
+    <meta charset="UTF-8">
+    <title>UI Transformer by Lyra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script>
+      <style type="text/tailwindcss">
+        .text-clifford {
+            color: #da373d;
+        }
+      </style>
+  </head>
+    <body class="bg-gray-50 flex flex-col justify-center items-center min-h-screen text-center p-6">
+      <h1 class="text-3xl font-bold text-clifford mb-2">👋 Selamat datang!</h1>
+      <p class="text-gray-600 max-w-md">Tulis perintah desain atau masukkan URL website, dan aku akan bantu generate ulang tampilannya dengan Tailwind CSS ✨</p>
+      <p class="text-gray-600 max-w-md">Tapi saat ini Lyra sedang dalam perbaikan dulu, jadi belum maksimal untuk bekerja dengan baik, harap maklum yaa.. 😉️</p>
+    </body>
+</html>`;
+  
+  let reasoningVisible = false;
+
+  const MODEL_MAP = {
+    basic: { name: "qwen1.5-0", id: '@cf/qwen/qwen1.5-1.8b-chat' },
+    medium: { name: "llama-3.2-1b", id: '@cf/meta/llama-3.2-3b-instruct' },
+    advanced: { name: "mistral-small-3.1", id: '@cf/mistral/mistral-7b-instruct-v0.2-lora' },
+    expert: { name: "deepseek-r1", id: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b' }
+  };
+
+  // =================================================================
+  // FUNGSI UTAMA
+  // =================================================================
+
+  /** Mengambil key model yang sedang dipilih dari form radio button */
+  function getSelectedModelKey() {
+    return document.querySelector('input[name="model"]:checked')?.value || "basic";
+  }
+
+  /** Memperbarui label model yang aktif di UI */
+  function updateActiveModelLabel() {
+    const key = getSelectedModelKey();
+    const label = document.getElementById("active-model-label");
+    if (label && MODEL_MAP[key]) {
+      label.textContent = MODEL_MAP[key].name;
+    }
+  }
+  
+  /** Menampilkan teks dengan efek ketikan */
+  function animateTyping(element, text) {
+    element.textContent = "";
+    let i = 0;
+    const typer = setInterval(() => {
+      element.textContent = text.slice(0, i) + "_";
+      element.scrollTop = element.scrollHeight;
+      if (i >= text.length) {
+        clearInterval(typer);
+        element.textContent = text;
+      }
+      i++;
+    }, 8);
+  }
+
+  /** Ekstrak kode HTML dari balasan mentah AI */
+  function extractHtmlFromMarkdownBlock(raw) {
+    const match = raw.match(/```html\s*([\s\S]*?)```/);
+    if (match) return match[1].trim();
+    const fallback = raw.match(/<!DOCTYPE html>[\s\S]*?<\/html>/i);
+    if (fallback) return fallback[0];
+    const partial = raw.match(/<!DOCTYPE html>[\s\S]*$/i);
+    if (partial) return partial[0];
+    return "";
+  }
+
+function updateWatermark(modelId) {
+  const box = document.getElementById("ai-model-watermark");
+  if (!box) return;
+}
+
+  /** Mengirim request ke API backend */
+async function handleTransformClick() {
+  const prompt = document.getElementById("prompt").value.trim();
+  const outputEl = document.getElementById("ai-output");
+
+  if (!prompt) {
+    alert("Masukkan instruksi nya dulu, boss!");
+    return;
+  }
+
+  const modelKey = getSelectedModelKey();
+  const selectedModelId = MODEL_MAP[modelKey]?.id || MODEL_MAP["basic"].id;
+
+  // 🔄 Tampilkan loading info
+  const reasonText = document.getElementById("ai-reasoning-text");
+  const reasonBox = document.getElementById("ai-reasoning-box");
+
+  if (reasonText && reasonBox) {
+    reasonText.textContent = `AI ${selectedModelId.toUpperCase()} sedang bekerja untukmu...`;
+    reasonBox.classList.remove("hidden");
+  }
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt,
+        mode: "initial",
+        model: selectedModelId
+      })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || `Request gagal dengan status ${res.status}`);
+    }
+
+    const data = await res.json();
+    const rawOutput = data.output || data.response || "";
+    const html = extractHtmlFromMarkdownBlock(rawOutput);
+    if (reasonBox) reasonBox.classList.add("hidden");
+
+    updateWatermark(selectedModelId);
+    animateTyping(outputEl, html);
+    renderAIOutput(html);
+
+const watermarkBox = document.getElementById("ai-model-watermark");
+
+if (watermarkBox) {
+  const isFree = selectedModelId.includes("qwen");
+  if (isFree) {
+    watermarkBox.innerHTML = `✨ Kamu sedang menggunakan <span class="font-semibold text-blue-400">Qwen (model gratis)</span>. 
+    Hasil desain lebih optimal tersedia di model Pro seperti 
+    <span class="text-yellow-400">LLaMA</span>, <span class="text-orange-400">Mistral</span>, dan <span class="text-green-400">DeepSeek</span>.
+    <a href="/pricing" class="underline hover:text-white ml-1">Upgrade sekarang →</a>`;
+    watermarkBox.classList.remove("hidden");
+  } else {
+    watermarkBox.innerHTML = "";
+    watermarkBox.classList.add("hidden");
+  }
+}
+
+  } catch (err) {
+    outputEl.textContent = "❌ Error saat panggil AI: " + err.message;
+    document.getElementById("ai-reasoning-box").classList.add("hidden");
+  }
+}
+  
+  // =================================================================
+  // EVENT LISTENERS & INISIALISASI
+  // =================================================================
+  document.addEventListener("DOMContentLoaded", () => {
+    const outputEl = document.getElementById("ai-output");
+    
+    // Tampilkan greeting awal
+    if (outputEl) animateTyping(outputEl, greetingHTML);
+    
+    // Inisialisasi pilihan model dari localStorage
+    const savedModel = localStorage.getItem("selectedModel") || "basic";
+    const radioInput = document.querySelector(`input[name="model"][value="${savedModel}"]`);
+    if (radioInput) radioInput.checked = true;
+    updateActiveModelLabel();
+
+    // Listener untuk perubahan model
+    document.querySelectorAll('input[name="model"]').forEach(radio => {
+      radio.addEventListener("change", updateActiveModelLabel);
+    });
+
+    // Listener untuk tombol utama
+    document.getElementById("transform-button").addEventListener("click", handleTransformClick);
+    
+    // --- Logika panel setting (GSAP) ---
+    const gearBtn = document.querySelector("aside .fa-robot")?.parentElement;
+    const modelSelector = document.getElementById("model-selector");
+    const closeModelBtn = document.getElementById("close-model-selector");
+    let panelVisible = false;
+
+    function toggleModelPanel(show) {
+        panelVisible = show;
+        const options = {
+            duration: 0.4,
+            opacity: show ? 1 : 0,
+            scale: show ? 1 : 0.95,
+            ease: show ? "power3.out" : "power2.in",
+            onComplete: () => {
+                if(modelSelector) modelSelector.style.pointerEvents = show ? "auto" : "none";
+            }
+        };
+        gsap.to(modelSelector, options);
+    }
+    
+    gearBtn?.addEventListener("click", () => {
+        gsap.fromTo(gearBtn.querySelector("i"), { rotate: 0 }, { rotate: 360, duration: 0.8, ease: "power2.inOut" });
+        toggleModelPanel(!panelVisible);
+    });
+
+    closeModelBtn?.addEventListener("click", () => {
+        const selectedKey = getSelectedModelKey();
+        localStorage.setItem("selectedModel", selectedKey);
+        toggleModelPanel(false);
+    });
+  });
+</script>
+
+          <div id="output-panel" class="w-full lg:w-full bg-[#282c34] overflow-hidden hidden md:block p-4 relative">
+  <!-- Tombol Kanan Atas -->
+  <div class="absolute top-2 right-2 flex items-center gap-2 z-10">
+    <button
+      onclick="saveEditedOutput()"
+      id="save-button"
+      class="hidden bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition"
+    ><i class="fa-solid fa-floppy-disk"></i> Simpan & Preview</button>
+
+    <button
+      onclick="toggleEditorMode()"
+      id="edit-button"
+      class="cursor-pointer w-10 h-10 text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300 text-center font-medium rounded-full text-sm p-2"
+      title="Edit HTML"
+    ><i class="fa-solid fa-pen"></i></button>
+
+    <button
+      onclick="downloadHTML()"
+      id="download-button"
+      class="cursor-pointer w-10 h-10 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 text-center font-medium rounded-full text-sm p-2"
+      title="Download HTML"
+    >
+      <i class="fa-solid fa-download"></i>
+    </button>
+
+    <button
+      onclick="showPreview()"
+      id="preview-button"
+      class="cursor-pointer w-10 h-10 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 text-center font-medium rounded-full text-sm p-2"
+      title="Preview"
+    ><i class="fa-solid fa-eye"></i></button>
+  </div>
+
+  <!-- Area Editor/Code -->
+  <div id="output-editor" class="relative h-[420px]">
+    <!-- Code (readonly mode) -->
+    <pre id="output-readonly" class="bg-[#282c34] text-sm font-mono text-green-300 p-4 h-full rounded-md overflow-y-auto overflow-x-hidden min-h-96 whitespace-pre-wrap break-words hljs text-wrap transition-opacity duration-300 scrollbar-hidden"></pre>
+
+    <!-- Textarea (edit mode) -->
+    <textarea
+      id="output-editable"
+      class="hidden h-full w-full bg-[#1e1e1e] text-green-300 font-mono text-sm p-4 mt-2 rounded-md border border-gray-700 resize-vertical focus:outline-none focus:ring-2 focus:ring-blue-500"
+      rows="16"
+      spellcheck="false"
+    ></textarea>
+    <div id="ai-model-watermark" class="hidden mt-3 text-xs text-gray-400 italic"></div>
+  </div>
+</div>
+          <!-- Fullscreen Preview Modal -->
+<div id="modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+  <div class="relative w-full h-full md:w-[100%] md:h-[100%] rounded-xl overflow-hidden shadow-2xl border border-gray-700 bg-[#1a1a1a]">
+    <iframe
+      id="previewFrame"
+      class="w-full h-full rounded-xl border-0"
+      sandbox="allow-scripts"
+    ></iframe>
+    <button
+      onclick="closeModal()"
+      class="absolute top-4 right-4 z-50 bg-red-600 hover:bg-red-700 text-white text-sm rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+      title="Tutup Preview"
+    >
+      <i class="fa-solid fa-xmark text-lg"></i>
+    </button>
+  </div>
+</div>
+
+<script>
+let currentHTML = "";
+let isEditing = false;
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderAIOutput(greetingHTML);        // tampilkan sambutan
+  previewFrame.srcdoc = greetingHTML;  // render di iframe
+});
+
+function renderAIOutput(htmlString) {
+  currentHTML = htmlString;
+
+  const pre = document.getElementById("output-readonly");
+  const textarea = document.getElementById("output-editable");
+
+  pre.textContent = "";
+  let i = 0;
+
+  const typer = setInterval(() => {
+    pre.textContent = htmlString.slice(0, i++) + "_";
+    pre.scrollTop = pre.scrollHeight;
+
+    if (i > htmlString.length) {
+      clearInterval(typer);
+      pre.textContent = htmlString;
+      hljs.highlightElement(pre);
+    }
+  }, 5);
+
+  textarea.value = htmlString;
+}
+
+function downloadHTML() {
+  const content = document.getElementById("output-editable")?.value?.trim();
+  if (!content) {
+    alert("Belum ada konten HTML untuk disimpan!");
+    return;
+  }
+
+  const blob = new Blob([content], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "ui-transform.html";
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
+
+// Toggle antara readonly dan editable
+function toggleEditorMode() {
+  isEditing = !isEditing;
+
+  const pre = document.getElementById("output-readonly");
+  const textarea = document.getElementById("output-editable");
+  const saveBtn = document.getElementById("save-button");
+
+  if (isEditing) {
+    pre.classList.add("hidden");
+    textarea.classList.remove("hidden");
+    saveBtn.classList.remove("hidden");
+  } else {
+    pre.classList.remove("hidden");
+    textarea.classList.add("hidden");
+    saveBtn.classList.add("hidden");
+  }
+}
+
+// Simpan hasil edit dan update preview
+function saveEditedOutput() {
+  const textarea = document.getElementById("output-editable");
+  const updatedCode = textarea.value.trim();
+  if (!updatedCode) return alert("Isi HTML tidak boleh kosong!");
+
+  currentHTML = updatedCode;
+
+  // Render ulang di preview dan pre
+  renderAIOutput(currentHTML);
+  previewFrame.srcdoc = currentHTML;
+
+  toggleEditorMode(); // kembali ke readonly
+}
+
+  // Tombol preview modal
+function showPreview() {
+  const modal = document.getElementById("modal");
+  const frame = document.getElementById("previewFrame");
+  frame.srcdoc = currentHTML;
+
+  modal.classList.remove("hidden");
+  modal.classList.remove("opacity-0");
+  modal.classList.add("opacity-100");
+}
+
+function closeModal() {
+  const modal = document.getElementById("modal");
+  modal.classList.remove("opacity-100");
+  modal.classList.add("opacity-0");
+
+  setTimeout(() => {
+    modal.classList.add("hidden");
+  }, 300); // harus sama dengan durasi transition-nya
+}
+</script>
+
+        </div>
+              <footer class="text-sm text-center text-gray-500 py-6  border-t border-gray-700">
+        &copy; 2025 UI Generator by <span class="font-bold text-blue-400">L Y Я A</span>. All rights reserved.
+      </footer>
+      </main>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    gsap.to("#ai-loader", {
+      opacity: 0,
+      duration: 1.5,
+      onComplete: () => document.getElementById("ai-loader")?.remove()
+    });
+
+    const timeline = gsap.timeline({ defaults: { duration: 1.8, ease: "power3.out" } });
+    timeline
+      .from("#topbar", { y: -80, opacity: 0 }, 0.2)
+      .from("#sidebar", { y: 80, opacity: 0 }, 0.4)
+      .from("#input-panel", { x: -100, opacity: 0 }, 0.6)
+      .from("#output-panel", { x: 100, opacity: 0 }, 0.8)
+      .from("footer", { y: 60, opacity: 0, ease: "bounce.out" }, 1.0);
+  }, 3000);
+});
+</script>
+      
+    </body>
+
+</html>

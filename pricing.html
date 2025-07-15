@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id-ID">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pricing | UI Transformer</title>
+  <meta name="description" content="UI Transformer by L Y Я A - Konversi desain ke Tailwind CSS dengan AI.">
+  <link rel="canonical" href="https://daffadevhosting.github.io/generate/pricing">
+
+  <link type="application/atom+xml" rel="alternate" href="https://daffadevhosting.github.io/generate/feed.xml" title="UI Generator" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style type="text/tailwindcss">
+    @layer utilities {
+      .glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .glassmorph {
+        background: rgba(17, 25, 40, 0.5);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .scrollbar-hidden {
+      scrollbar-width: none;      /* Firefox */
+      -ms-overflow-style: none;   /* IE 10+ */
+    }
+
+    .scrollbar-hidden::-webkit-scrollbar {
+      display: none;              /* Chrome, Safari */
+    }
+    #preview-modal {
+      backdrop-filter: blur(4px);
+    }
+    #preview-frame {
+      background-color: white;
+    }
+    #preview-modal.show #preview-content {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #modal {
+      transition: opacity 300ms ease-in-out;
+    }
+    #edit-box,
+    #code-wrapper {
+      transition: opacity 0.3s ease;
+    }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .popular-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+  </style>
+<!-- Highlight.js CSS theme -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<!-- Highlight.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<!-- HTML language support -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+  
+  <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-i2KW02MfN9duiyJ9"></script>
+<!-- Firebase SDKs from CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCEjcpfj58QbeFXXdAwygzvuGjH6l-xgFk",
+  authDomain: "glitchlab-ai.firebaseapp.com",
+  projectId: "glitchlab-ai",
+  appId: "1:807047215761:web:416168acd2080ab80b1d30"
+};
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Export untuk digunakan di modul lain (jika diperlukan)
+        window.getAuth = () => auth;
+        window.getFirestore = () => db;
+
+const MIDTRANS_WORKER_URL = "https://midtranspay.androidbutut.workers.dev/snap";
+</script>
+
+</head>
+
+    <body class="bg-[#1E1E1E] text-white font-sans h-screen flex flex-col md:flex-row overflow-hidden">
+      <div id="ai-loader" class="fixed inset-0 z-50 flex items-center justify-center" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);background-attachment: fixed;">
+    <div id="ai-orb" class="lg:w-1/3 flex justify-center">
+                    <div class="relative">
+                        <div class="w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center animate-float">
+                            <div class="glassmorph w-56 h-56 md:w-72 md:h-72 rounded-full bg-slate-800/80 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="inline-flex items-center mb-3">
+                                        <span class="text-3xl md:text-4xl font-bold text-white high-contrast-shadow">
+                                          <span style="opacity: 0;">L</span>
+                                          <span style="opacity: 0;"> </span>
+                                          <span style="opacity: 0;">Y</span>
+                                          <span style="opacity: 0;"> </span>
+                                          <span style="opacity: 0;">Я</span>
+                                          <span style="opacity: 0;"> </span>
+                                          <span style="opacity: 0;">A</span>
+                                        </span>
+                                        <span class="js-close-icon ml-2 text-red-400 text-2xl">✕</span>
+                                    </div>
+                                    <a href="https://github.com/daffadevhosting/daffadevhosting.github.io" target="_blank" class="inline-block mt-3 px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition duration-300">
+                                        @daffadevhosting
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-10 -right-10 w-16 h-16 bg-yellow-500/30 blur-2xl animate-pulse rounded-full"></div>
+                        <div class="absolute bottom-10 -left-10 w-16 h-16 bg-purple-500/30 blur-2xl animate-pulse rounded-full"></div>
+                    </div>
+                </div>
+</div>
+<script>
+const lyraText = document.querySelector(".high-contrast-shadow");
+const letters = gsap.utils.toArray(lyraText.children);
+
+gsap.to(letters, {
+  opacity: 1,
+  stagger: 0.2, // Delay antar animasi setiap huruf (dalam detik)
+  duration: 0.8,
+  ease: "power2.inOut",
+  delay: 1 // Delay sebelum animasi keseluruhan dimulai
+});
+
+gsap.fromTo(
+  ".js-close-icon",
+  {
+    x: -50, // Mulai 50 piksel di kiri posisi aslinya
+    opacity: 0
+  },
+  {
+    x: 0,     // Bergeser ke posisi aslinya (kanan)
+    opacity: 1,
+    duration: 0.8,
+    ease: "power2.out",
+    delay: 0.3 // Delay sebelum animasi ikon dimulai (opsional)
+  }
+);
+</script>
+      <aside id="sidebar" class="w-full md:w-20 bg-[#121212] p-4 flex md:flex-col gap-6 border-b md:border-b-0 md:border-r border-gray-700">
+  <div class="flex justify-between items-center w-full md:block">
+    <h1 class="text-sm font-bold hidden md:block">L Y Я A</h1>
+    <div class="bg-[#2A2A2A] glass text-sm rounded px-2 py-1 md:w-fit">v.2.5</div>
+    <button class="text-sm bg-pink-700 md:hidden block text-white px-3 py-1 rounded">Upgrade PRO</button>
+  </div>
+  
+</aside>
+<div id="model-selector"
+  class="fixed z-50 bottom-20 md:left-24 left-4 right-4 md:right-auto w-auto max-w-xs bg-[#1E1E1E] backdrop-blur-md rounded-xl shadow-xl border border-gray-700 p-4 space-y-4 opacity-0 scale-95 pointer-events-none"
+>
+  <h3 class="text-white text-sm font-semibold">Pilih Model AI</h3>
+  <div class="space-y-2 text-sm text-gray-300">
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="basic" class="accent-blue-500" checked />
+      qwen1.5-0 - Element Sederhana <span class="text-yellow-500 text-xs ml-1">FREE 2x only</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="medium" class="accent-blue-500" disabled />
+      llama-3.2-1b - Komponen Responsive <span class="text-yellow-500 text-xs ml-1">MEDIUM only</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="advanced" class="accent-blue-500" disabled />
+      mistral-small-3.1 - Layout Modular <span class="text-yellow-500 text-xs ml-1">ADVANCE only</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="expert" class="accent-blue-500" disabled />
+      deepseek-r1 - Full Page Elegan <span class="text-yellow-500 text-xs ml-1">EXPERT only</span>
+    </label>
+  </div>
+  <button id="close-model-selector"
+    class="cursor-pointer w-full mt-2 text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 rounded shadow">Simpan</button>
+</div>
+
+
+      <main class="glassmorph flex-1 flex flex-col overflow-hidden">
+        <div id="topbar" class="flex items-center justify-between p-4 border-b border-gray-700">
+  <div class="text-sm text-gray-400 truncate">
+    <a href="/generate/">
+    <i class="fa-solid fa-code text-blue-400"></i>
+    UI Generator <span class="font-bold text-blue-400">(L Y Я A)</span>
+    </a>
+  </div>
+  <div class="flex items-center gap-3">
+  
+  
+    <img src="https://placehold.co/32x32" alt="Profile" class="rounded-full w-8 h-8">
+  </div>
+</div>
+
+          <div class="relative p-4 overflow-y-auto mx-auto h-screen max-w-[1200px] w-full">
+        <!-- Pricing Cards -->
+    <div class="grid grid-cols-1 mx-auto mt-16 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    <!-- Medium Card -->
+    <div class="bg-white glassmorph rounded-xl overflow-hidden shadow-lg card-hover">
+        <div class="glass px-6 py-5 bg-blue-100 border-b border-blue-200">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            <h3 class="ml-2 text-xl font-semibold text-blue-800">Medium</h3>
+        </div>
+        <p class="mt-2 text-sm text-blue-600">15x generate dengan LLaMA 3B</p>
+        </div>
+        <div class="px-6 py-5">
+        <div class="text-3xl font-bold text-gray-400">Rp. 24.000</div>
+        <ul class="mt-6 space-y-3 text-gray-400">
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>15x generate per 30 hari</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: LLaMA 3B</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Tanpa iklan</li>
+        </ul>
+        <button
+            class="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
+            data-amount="24000"
+            data-plan="medium"
+        >Pilih Paket</button>
+        </div>
+    </div>
+
+    <!-- Advanced Card (Popular) -->
+    <div class="relative bg-white glassmorph rounded-xl overflow-hidden shadow-lg card-hover transform scale-105 z-10 border-2 border-yellow-400 animate__animated animate__pulse">
+        <div class="absolute top-0 right-0 bg-yellow-300 text-yellow-900 px-3 py-1 text-xs font-bold rounded-bl-lg popular-badge">
+        TERPOPULER
+        </div>
+        <div class="glass px-6 py-5 bg-yellow-100 border-b border-yellow-200">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+            <h3 class="ml-2 text-xl font-semibold text-yellow-800">Advanced</h3>
+        </div>
+        <p class="mt-2 text-sm text-yellow-600">25x generate dengan Mistral 7B</p>
+        </div>
+        <div class="px-6 py-5">
+        <div class="text-3xl font-bold text-gray-400">Rp. 38.000</div>
+        <ul class="mt-6 space-y-3 text-gray-400">
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>25x generate per 30 hari</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: Mistral 7B</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Tanpa batasan fitur</li>
+        </ul>
+        <button
+            class="mt-8 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
+            data-amount="38000"
+            data-plan="advanced"
+        >Pilih Paket</button>
+        </div>
+    </div>
+
+    <!-- Expert Card -->
+    <div class="bg-white glassmorph rounded-xl overflow-hidden shadow-lg card-hover">
+        <div class="glass px-6 py-5 bg-green-100 border-b border-green-200">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3 class="ml-2 text-xl font-semibold text-green-800">Expert</h3>
+        </div>
+        <p class="mt-2 text-sm text-green-600">50x generate dengan Deepseek R1</p>
+        </div>
+        <div class="px-6 py-5 text-gray-400">
+        <div class="text-3xl font-bold text-gray-400">Rp. 69.000</div>
+        <ul class="mt-6 space-y-3 text-gray-400">
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>50x generate per 30 hari</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: Deepseek 32B</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Powerful reasoning & output</li>
+        </ul>
+        <button
+            class="mt-8 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
+            data-amount="69000"
+            data-plan="expert"
+        >Pilih Paket</button>
+        </div>
+    </div>
+
+    </div>
+</div>
+              <footer class="text-sm text-center text-gray-500 py-6  border-t border-gray-700">
+        &copy; 2025 UI Generator by <span class="font-bold text-blue-400">L Y Я A</span>. All rights reserved.
+      </footer>
+      </main>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    gsap.to("#ai-loader", {
+      opacity: 0,
+      duration: 1.5,
+      onComplete: () => document.getElementById("ai-loader")?.remove()
+    });
+
+    const timeline = gsap.timeline({ defaults: { duration: 1.8, ease: "power3.out" } });
+    timeline
+      .from("#topbar", { y: -80, opacity: 0 }, 0.2)
+      .from("#sidebar", { y: 80, opacity: 0 }, 0.4)
+      .from("#input-panel", { x: -100, opacity: 0 }, 0.6)
+      .from("#output-panel", { x: 100, opacity: 0 }, 0.8)
+      .from("footer", { y: 60, opacity: 0, ease: "bounce.out" }, 1.0);
+  }, 3000);
+});
+</script>
+      
+    </body>
+
+</html>

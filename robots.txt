@@ -1,1 +1,1 @@
-Sitemap: https://daffadevhosting.github.io/generate/sitemap.xml
+Sitemap: https://daffadevhosting.github.io/sitemap.xml

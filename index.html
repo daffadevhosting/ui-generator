@@ -269,10 +269,60 @@ if (!lastSeen || now - lastSeen > 24 * 60 * 60 * 1000) {
       title="Preview"
     ><i class="fa-solid fa-eye"></i></button>
   
-    <img src="https://placehold.co/32x32" alt="Profile" class="rounded-full w-8 h-8">
+<!-- Trigger Button -->
+<button id="userButton" class="w-8 h-8 rounded-full shadow-lg cursor-pointer transition hover:ring-2 ring-blue-500">
+</button>
   </div>
 </div>
+<script>
+firebase.auth().onAuthStateChanged(async (user) => {
+  const btn = document.getElementById("userButton");
 
+  if (user) {
+    const photoURL = user.photoURL || '/daffadevhosting/assets/images/icons/G-icon.png';
+    btn.innerHTML = `
+      <img src="${photoURL}" alt="User" id="userAvatar" class="w-8 h-8 rounded-full shadow-lg cursor-pointer transition hover:ring-2 ring-blue-500">
+    `;
+
+    document.getElementById("userAvatar").addEventListener("click", () => {
+      document.getElementById("userProfileModal").classList.remove("hidden");
+    });
+
+    // 🔥 Ambil token & user data dari backend
+    const token = await user.getIdToken();
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: 'cek quota', model: 'basic' }),
+    });
+    const result = await res.json();
+    renderUserProfile(result.user, res.headers.get('X-Remaining-Quota'));
+  } else {
+    // Belum login, tampilkan tombol login Google
+    btn.innerHTML = `
+      <button id="googleLoginBtn" class="cursor-pointer">
+        <img src="/daffadevhosting/assets/images/icons/G-icon.png" alt="Login">
+      </button>
+    `;
+    document.getElementById("googleLoginBtn").addEventListener("click", () => {
+      document.getElementById("loginModal").classList.remove("hidden");
+    });
+  }
+});
+
+function renderUserProfile(user, quota) {
+  if (!user) {
+    console.warn("⚠️ Tidak ada user data dikirim dari backend.");
+    return;
+  }
+
+  document.getElementById("profileName").textContent = user.name ?? "-";
+  document.getElementById("profileEmail").textContent = user.email ?? "-";
+  document.getElementById("profileRole").textContent = user.role ?? "free";
+  document.getElementById("profilePlan").textContent = user.plan ?? "free";
+  document.getElementById("profileQuota").textContent = quota ?? "-";
+}
+</script>
                   <div class="flex flex-col lg:flex-row flex-1 overflow-auto scrollbar-hidden">
           <div id="input-panel" class="relative w-full h-full lg:w-1/2 p-4 space-y-4 overflow-auto border-b lg:border-b-0 lg:border-r border-gray-700 scrollbar-hidden">
 <style>
@@ -1145,31 +1195,108 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 </script>
-    <!-- Global Alert Container -->
-    <div id="global-alert-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] w-full max-w-xl px-4 pointer-events-none"></div>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    gsap.to("#ai-loader", {
-      opacity: 0,
-      duration: 1.5,
-      onComplete: () => document.getElementById("ai-loader")?.remove()
-    });
+        <!-- Modal Overlay -->
+<div id="loginModal" class="fixed glassmorhp inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+  <div class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white w-[90%] max-w-md p-6 rounded-2xl shadow-2xl animate-fade-in">
+    <h2 class="text-xl font-bold mb-4">Masuk dengan Google</h2>
+    <p class="text-sm mb-4">Silakan masuk untuk melanjutkan menggunakan layanan AI kami. Harap setujui ketentuan layanan terlebih dahulu.</p>
 
-    const timeline = gsap.timeline({ defaults: { duration: 1.8, ease: "power3.out" } });
-    timeline
-      .from("#topbar", { y: -80, opacity: 0 }, 0.2)
-      .from("#sidebar", { y: 80, opacity: 0 }, 0.4)
-      .from("#input-panel", { x: -100, opacity: 0 }, 0.6)
-      .from("#output-panel", { x: 100, opacity: 0 }, 0.8)
-      .from("footer", { y: 60, opacity: 0, ease: "bounce.out" }, 1.0);
-  }, 3000);
+    <div class="flex items-center space-x-2 mb-4">
+      <input type="checkbox" id="acceptTerms" class="accent-blue-500 cursor-pointer">
+      <label for="acceptTerms" class="text-sm">Saya menyetujui <a href="/daffadevhosting/terms" class="underline">syarat & ketentuan</a>.</label>
+    </div>
+
+    <button id="confirmGoogleLogin" disabled class="w-full bg-blue-500 text-white py-2 px-4 rounded-xl font-semibold opacity-50 cursor-not-allowed transition-all">
+      <img src="/daffadevhosting/assets/images/icons/G-icon.png" alt="Google" class="inline w-5 h-5 mr-2"> Masuk dengan Google
+    </button>
+
+    <button id="closeLoginModal" class="mt-4 w-full text-sm text-zinc-500 cursor-pointer hover:underline">Batal</button>
+  </div>
+</div>
+
+<style>
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+</style>
+
+<script>
+const modal = document.getElementById('loginModal');
+const triggerBtn = document.getElementById('googleLoginBtn');
+const closeBtn = document.getElementById('closeLoginModal');
+const checkbox = document.getElementById('acceptTerms');
+const loginBtn = document.getElementById('confirmGoogleLogin');
+
+closeBtn.addEventListener('click', () => {
+  modal.classList.add('hidden');
+});
+
+checkbox.addEventListener('change', () => {
+  if (checkbox.checked) {
+    loginBtn.disabled = false;
+    loginBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    loginBtn.classList.add('cursor-pointer');
+  } else {
+    loginBtn.disabled = true;
+    loginBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    loginBtn.classList.remove('cursor-pointer');
+  }
+});
+
+loginBtn.addEventListener('click', async () => {
+  if (!checkbox.checked) return;
+  
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await firebase.auth().signInWithPopup(provider);
+    firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+        const token = await user.getIdToken();
+        const docRef = firebase.firestore().doc(`users/${user.uid}`);
+        await docRef.set({
+        uid: user.uid,
+        name: user.displayName || "Unknown",
+        email: user.email,
+        photoURL: user.photoURL,
+        role: 'free',
+        plan: 'free',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        console.log("✅ User disimpan ke Firestore:", user.uid);
+    }
+    });
+    modal.classList.add('hidden');
+  } catch (error) {
+    alert('Login gagal: ' + error.message);
+  }
 });
 </script>
-      
-    </body>
+
+        <div id="userProfileModal" class="glassmorph fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white w-full max-w-sm p-6 rounded-xl shadow-xl">
+    <h2 class="text-xl font-bold mb-3">Profil Pengguna</h2>
+    <p><strong>Nama:</strong> <span id="profileName"></span></p>
+    <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+    <p><strong>Role:</strong> <span id="profileRole"></span></p>
+    <p><strong>Paket:</strong> <span id="profilePlan"></span></p>
+    <p><strong>Sisa Kuota:</strong> <span id="profileQuota"></span></p>
+    <button id="loggedOut" class="mt-4 bg-red-500 text-white px-4 py-2 rounded cursor-pointer" onclick="firebase.auth().signOut()">Logout</button>
+    <button class="mt-2 w-full text-sm text-zinc-500 cursor-pointer hover:underline" onclick="document.getElementById('userProfileModal').classList.add('hidden')">Tutup</button>
+  </div>
+</div>
 <script>
+  document.getElementById("loggedOut").addEventListener("click", () => {
+  document.getElementById('userProfileModal').classList.add('hidden');
+  });
+</script>
+            <!-- Global Alert Container -->
+    <div id="global-alert-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] w-full max-w-xl px-4 pointer-events-none"></div>
+    <script>
 function globalAlert(message = "Terjadi sesuatu!", type = "info", duration = 5000) {
   const icons = {
     success: "✅",
@@ -1223,4 +1350,27 @@ function dismissGlobalAlert(id) {
   }
 }
 </script>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    gsap.to("#ai-loader", {
+      opacity: 0,
+      duration: 1.5,
+      onComplete: () => document.getElementById("ai-loader")?.remove()
+    });
+
+    const timeline = gsap.timeline({ defaults: { duration: 1.8, ease: "power3.out" } });
+    timeline
+      .from("#topbar", { y: -80, opacity: 0 }, 0.2)
+      .from("#sidebar", { y: 80, opacity: 0 }, 0.4)
+      .from("#input-panel", { x: -100, opacity: 0 }, 0.6)
+      .from("#output-panel", { x: 100, opacity: 0 }, 0.8)
+      .from("footer", { y: 60, opacity: 0, ease: "bounce.out" }, 1.0);
+  }, 3000);
+});
+</script>
+      
+    </body>
 </html>

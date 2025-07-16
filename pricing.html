@@ -296,11 +296,13 @@ function renderUserProfile(user, quota) {
     return;
   }
 
-  document.getElementById("profileName").textContent = user.name ?? "-";
-  document.getElementById("profileEmail").textContent = user.email ?? "-";
-  document.getElementById("profileRole").textContent = user.role ?? "free";
-  document.getElementById("profilePlan").textContent = user.plan ?? "free";
-  document.getElementById("profileQuota").textContent = quota ?? "-";
+  document.getElementById("profileName").textContent = user.name || "Anonim";
+  document.getElementById("profileEmail").textContent = user.email || "-";
+  document.getElementById("profileRole").textContent = user.role || "free";
+  document.getElementById("profilePlan").textContent = user.plan || "free";
+  document.getElementById("profileQuota").textContent = `Sisa kuota: ${quota !== undefined && quota !== null ? quota : "∞"}`;
+  document.getElementById("profileAvatar").src = user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name || "U");
+
 }
 </script>
           <div class="relative p-4 overflow-y-auto mx-auto h-screen max-w-[1200px] w-full">
@@ -814,7 +816,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 </script>
         <!-- Modal Overlay -->
-<div id="loginModal" class="fixed glassmorhp inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+<div id="loginModal" class="fixed glassmorph inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
   <div class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white w-[90%] max-w-md p-6 rounded-2xl shadow-2xl animate-fade-in">
     <h2 class="text-xl font-bold mb-4">Masuk dengan Google</h2>
     <p class="text-sm mb-4">Silakan masuk untuk melanjutkan menggunakan layanan AI kami. Harap setujui ketentuan layanan terlebih dahulu.</p>
@@ -896,21 +898,41 @@ loginBtn.addEventListener('click', async () => {
 </script>
 
         <div id="userProfileModal" class="glassmorph fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-  <div class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white w-full max-w-sm p-6 rounded-xl shadow-xl">
-    <h2 class="text-xl font-bold mb-3">Profil Pengguna</h2>
-    <p><strong>Nama:</strong> <span id="profileName"></span></p>
-    <p><strong>Email:</strong> <span id="profileEmail"></span></p>
-    <p><strong>Role:</strong> <span id="profileRole"></span></p>
-    <p><strong>Paket:</strong> <span id="profilePlan"></span></p>
-    <p><strong>Sisa Kuota:</strong> <span id="profileQuota"></span></p>
-    <button id="loggedOut" class="mt-4 bg-red-500 text-white px-4 py-2 rounded cursor-pointer" onclick="firebase.auth().signOut()">Logout</button>
-    <button class="mt-2 w-full text-sm text-zinc-500 cursor-pointer hover:underline" onclick="document.getElementById('userProfileModal').classList.add('hidden')">Tutup</button>
+  <div class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white w-full max-w-sm p-6 rounded-2xl shadow-2xl border border-white/20 relative overflow-hidden">
+
+    <!-- Avatar -->
+    <div class="flex flex-col items-center text-center">
+      <img id="profileAvatar" src="" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-white shadow-md mb-3 object-cover" />
+      <h2 id="profileName" class="text-2xl font-semibold tracking-tight"></h2>
+      <p id="profileEmail" class="text-sm text-zinc-400 -mt-0.5"></p>
+
+      <!-- Badges -->
+      <div class="flex gap-2 mt-2">
+        <span id="profileRole" class="text-xs px-2 py-1 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white font-semibold shadow-sm"></span>
+        <span id="profilePlan" class="text-xs px-2 py-1 rounded-full bg-zinc-800 text-white font-semibold border border-zinc-700 shadow-sm"></span>
+      </div>
+
+      <!-- Kuota -->
+      <p id="profileQuota" class="mt-4 text-sm text-zinc-300 italic"></p>
+
+      <!-- Tombol -->
+    <div class="flex justify-between items-center-safe w-full">
+      <button id="loggedOut" class="cursor-pointer mt-4 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-full text-sm transition" onclick="firebase.auth().signOut()">Keluar</button>
+      <button onclick="document.getElementById('userProfileModal').classList.add('hidden')" class="cursor-pointer mt-2 text-xs text-zinc-400 hover:text-white underline transition">Tutup</button>
+    </div>
+    </div>
   </div>
 </div>
+
 <script>
+function showUserProfileModal(user, quota = "∞") {
+  if (!user) return;
+
+  document.getElementById("userProfileModal").classList.remove("hidden");
+  }
   document.getElementById("loggedOut").addEventListener("click", () => {
   document.getElementById('userProfileModal').classList.add('hidden');
-  });
+});
 </script>
             <!-- Global Alert Container -->
     <div id="global-alert-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] w-full max-w-xl px-4 pointer-events-none"></div>

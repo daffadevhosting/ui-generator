@@ -1,1 +1,3 @@
-Sitemap: https://daffadevhosting.github.io/daffadevhosting/sitemap.xml
+User-agent: *
+Allow: /
+Sitemap: {{site.url}}/{{site.baseurl}}/sitemap.xml

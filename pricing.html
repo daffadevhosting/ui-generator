@@ -220,129 +220,144 @@ if (!lastSeen || now - lastSeen > 24 * 60 * 60 * 1000) {
 <script>
 const codingModeCheckbox = document.getElementById("enable-coding-mode");
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const saved = localStorage.getItem("codingMode") || "off";
-        codingModeCheckbox.checked = saved === "on";
+document.addEventListener("DOMContentLoaded", () => {
+    const saved = localStorage.getItem("codingMode") || "off";
+    codingModeCheckbox.checked = saved === "on";
 
-        codingModeCheckbox.addEventListener("change", () => {
-            localStorage.setItem("codingMode", codingModeCheckbox.checked ? "on" : "off");
-        });
+    codingModeCheckbox.addEventListener("change", () => {
+        localStorage.setItem("codingMode", codingModeCheckbox.checked ? "on" : "off");
+    });
+});
+
+// --- LOGIKA BARU UNTUK MENGAKTIFKAN MODEL AI BERDASARKAN PLAN ---
+firebase.auth().onAuthStateChanged(async (user) => {
+    const modelRadios = document.querySelectorAll('input[name="model"]');
+    const defaultModelRadio = document.querySelector('input[name="model"][value="basic"]');
+
+    // Reset semua radio ke disabled secara default
+    modelRadios.forEach(radio => {
+        radio.disabled = true;
+        radio.checked = false; // Uncheck semua
     });
 
-    // --- LOGIKA BARU UNTUK MENGAKTIFKAN MODEL AI BERDASARKAN PLAN ---
-    firebase.auth().onAuthStateChanged(async (user) => {
-        if (user) {
-            try {
-                const db = firebase.firestore(); // Dapatkan instance Firestore
-                const userDoc = await db.collection('users').doc(user.uid).get();
+    // Selalu aktifkan dan pilih 'basic' sebagai default
+    if (defaultModelRadio) {
+        defaultModelRadio.disabled = false;
+        defaultModelRadio.checked = true; // Pilih basic secara default
+    }
 
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    const userRole = userData?.role || 'basic';
-                    const userPlan = userData?.plan || 'basic'; // Default 'basic' jika tidak ada plan
+    if (user) {
+        try {
+            const db = firebase.firestore();
+            const userDoc = await db.collection('users').doc(user.uid).get();
 
-                    console.log(`User ${user.uid}: Role - ${userRole}, Plan - ${userPlan}`);
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                const userRole = userData?.role || 'free'; // Default 'free' jika tidak ada role
+                const userPlan = userData?.plan || 'free'; // Default 'free' jika tidak ada plan
 
-                    // Dapatkan semua input radio model
-                    const modelRadios = document.querySelectorAll('input[name="model"]');
+                console.log(`User ${user.uid}: Role - ${userRole}, Plan - ${userPlan}`);
 
+                // Tentukan model yang seharusnya aktif berdasarkan plan
+                let allowedModels = ['basic']; // Basic selalu aktif
 
-                    modelRadios.forEach(radio => {
-                        const modelValue = radio.value;
-
-                        // Basic selalu aktif
-                        if (modelValue === 'basic') {
-                            radio.disabled = false;
-                        } else if (userRole === 'pro') {
-                            // Jika pengguna pro, aktifkan model sesuai plan atau di bawahnya
-                            switch (userPlan) {
-                                case 'expert':
-                                    // Jika plan expert, aktifkan SEMUA model berbayar
-                                    radio.disabled = false; // <--- BARIS INI AKAN MENGAKTIFKAN SEMUA MODEL!
-                                    break;
-                                case 'advanced':
-                                    if (modelValue === 'advanced' || modelValue === 'medium') {
-                                        radio.disabled = false;
-                                    } else {
-                                        radio.disabled = true;
-                                    }
-                                    break;
-                                case 'medium':
-                                    if (modelValue === 'medium') {
-                                        radio.disabled = false;
-                                    } else {
-                                        radio.disabled = true;
-                                    }
-                                    break;
-                                default: // Jika plan pro tapi tidak terdefinisi atau basic
-                                    radio.disabled = true;
-                                    break;
-                            }
-                        } else {
-                            // Jika bukan pro, semua selain basic disabled
-                            radio.disabled = true;
-                        }
-                    });
-
-                    // Set model yang dipilih jika user punya plan yang lebih tinggi
-                    // dan model defaultnya masih basic (misal: setelah login pertama kali)
-                    if (userRole === 'pro' && userPlan !== 'basic') {
-                        const selectedRadio = document.querySelector(`input[name="model"][value="${userPlan}"]`);
-                        if (selectedRadio) {
-                            selectedRadio.checked = true;
-                        }
+                if (userRole === 'pro') {
+                    switch (userPlan) {
+                        case 'pro_medium': // Perhatikan nama plan dari Firestore
+                            allowedModels.push('medium');
+                            break;
+                        case 'pro_advanced':
+                            allowedModels.push('medium', 'advanced');
+                            break;
+                        case 'pro_expert':
+                            allowedModels.push('medium', 'advanced', 'expert'); // Semua model pro
+                            break;
+                        // case 'basic': // Jika 'basic' adalah plan berbayar, tambahkan di sini
+                        //     allowedModels.push('basic');
+                        //     break;
                     }
-
-                } else {
-                    console.warn(`User document not found for ${user.uid}. Defaulting to basic role.`);
-                    // Pastikan semua model berbayar disabled jika dokumen user tidak ditemukan
-                    document.querySelectorAll('input[name="model"]').forEach(radio => {
-                        if (radio.value !== 'basic') radio.disabled = true;
-                    });
                 }
-            } catch (error) {
-                console.error("Error fetching user data from Firestore:", error);
-                // Pastikan semua model berbayar disabled jika ada error
-                document.querySelectorAll('input[name="model"]').forEach(radio => {
+
+                // Aktifkan radio button yang diizinkan dan pilih yang tertinggi jika ada
+                let highestAllowedModelChecked = false;
+                modelRadios.forEach(radio => {
+                    const modelValue = radio.value;
+                    if (allowedModels.includes(modelValue)) {
+                        radio.disabled = false;
+                        // Pilih model tertinggi yang diizinkan sebagai default,
+                        // atau biarkan yang sudah dipilih jika ada (misal dari localStorage)
+                        // Untuk kasus ini, kita akan memilih yang tertinggi secara otomatis
+                        if (modelValue === userPlan.replace('pro_', '') || (userPlan === 'pro_expert' && modelValue === 'expert')) {
+                            radio.checked = true;
+                            highestAllowedModelChecked = true;
+                        }
+                    } else {
+                        radio.disabled = true;
+                    }
+                });
+
+                // Jika tidak ada model pro yang dipilih (misal userPlan 'basic' atau 'free'),
+                // pastikan 'basic' tetap terpilih
+                if (!highestAllowedModelChecked && defaultModelRadio) {
+                    defaultModelRadio.checked = true;
+                }
+
+            } else {
+                console.warn(`User document not found for ${user.uid}. Defaulting to free role.`);
+                // Jika dokumen user tidak ditemukan, hanya basic yang aktif
+                modelRadios.forEach(radio => {
                     if (radio.value !== 'basic') radio.disabled = true;
                 });
+                if (defaultModelRadio) {
+                    defaultModelRadio.checked = true;
+                }
             }
-        } else {
-            // Pengguna belum login atau logout
-            // Pastikan semua model berbayar disabled
-            document.querySelectorAll('input[name="model"]').forEach(radio => {
+        } catch (error) {
+            console.error("Error fetching user data from Firestore:", error);
+            // Jika ada error, hanya basic yang aktif
+            modelRadios.forEach(radio => {
                 if (radio.value !== 'basic') radio.disabled = true;
             });
-            // Pastikan basic tetap aktif
-            document.querySelector('input[name="model"][value="basic"]').checked = true;
-            document.querySelector('input[name="model"][value="basic"]').disabled = false;
+            if (defaultModelRadio) {
+                defaultModelRadio.checked = true;
+            }
         }
-    });
-    // --- AKHIR LOGIKA BARU ---
-
-    async function sendPrompt(prompt, selectedModelId) {
-        const isCodingMode = localStorage.getItem("codingMode") === "on";
-
-        try {
-            const res = await fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    prompt,
-                    model: selectedModelId,
-                    mode: "initial",
-                    coding: isCodingMode // ✅ dikirim ke backend
-                })
-            });
-
-            const data = await res.json();
-            console.log("✅ AI Response:", data.output);
-            return data.output;
-        } catch (err) {
-            console.error("❌ Error:", err.message);
+    } else {
+        // Pengguna belum login atau logout
+        modelRadios.forEach(radio => {
+            if (radio.value !== 'basic') radio.disabled = true;
+        });
+        if (defaultModelRadio) {
+            defaultModelRadio.checked = true;
         }
     }
+});
+// --- AKHIR LOGIKA BARU ---
+
+async function sendPrompt(prompt, selectedModelId) {
+    const isCodingMode = localStorage.getItem("codingMode") === "on";
+
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                prompt,
+                model: selectedModelId,
+                mode: "initial",
+                coding: isCodingMode
+            })
+        });
+
+        const data = await res.json();
+        console.log("✅ AI Response:", data.output);
+        return data.output;
+    } catch (err) {
+        console.error("❌ Error:", err.message);
+    }
+}
 </script>
+
 
 
       <main class="glassmorph flex-1 flex flex-col overflow-hidden">
@@ -361,60 +376,154 @@ const codingModeCheckbox = document.getElementById("enable-coding-mode");
 </button>
   </div>
 </div>
+
 <script>
-  const API_URL = "https://ui-transform.daffadev.workers.dev/generate";
+const API_URL = "https://ui-transform.daffadev.workers.dev/generate";
+
 firebase.auth().onAuthStateChanged(async (user) => {
-  const btn = document.getElementById("userButton");
+    const btn = document.getElementById("userButton");
+    const profileModal = document.getElementById("userProfileModal");
+    const loginModal = document.getElementById("loginModal");
 
-  if (user) {
-    const photoURL = user.photoURL || '/daffadevhosting/assets/images/icons/G-icon.png';
-    btn.innerHTML = `
-      <img src="${photoURL}" alt="User" id="userAvatar" class="w-8 h-8 rounded-full shadow-lg cursor-pointer transition hover:ring-2 ring-blue-500">
-    `;
+    if (user) {
+        const photoURL = user.photoURL || '/daffadevhosting/assets/images/icons/G-icon.png';
+        btn.innerHTML = `
+            <img src="${photoURL}" alt="User" id="userAvatar" class="w-8 h-8 rounded-full shadow-lg cursor-pointer transition hover:ring-2 ring-blue-500">
+        `;
 
-    document.getElementById("userAvatar").addEventListener("click", () => {
-      document.getElementById("userProfileModal").classList.remove("hidden");
-    });
+        document.getElementById("userAvatar").addEventListener("click", () => {
+            profileModal.classList.remove("hidden");
+        });
 
-    // 🔥 Ambil token & user data dari backend
-    const token = await user.getIdToken();
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'cek quota', model: 'basic' }),
-    });
-    const result = await res.json();
-    renderUserProfile(result.user, res.headers.get('X-Remaining-Quota'));
-  } else {
-    // Belum login, tampilkan tombol login Google
-    btn.innerHTML = `
-      <button id="googleLoginBtn" class="cursor-pointer">
-        <img src="/daffadevhosting/assets/images/icons/G-icon.png" alt="Login">
-      </button>
-    `;
-    document.getElementById("googleLoginBtn").addEventListener("click", () => {
-      document.getElementById("loginModal").classList.remove("hidden");
-    });
-  }
+        // --- LOGIKA BARU: Ambil data user dari Firestore di frontend ---
+        let userDataFromFirestore = {
+            name: user.displayName || 'Unknown',
+            email: user.email || '-',
+            role: 'free', // Default
+            plan: 'free', // Default
+            photoURL: user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || "U"),
+            valid_until: null, // Tambahkan properti valid_until
+            isPremium: false, // Tambahkan properti isPremium
+        };
+
+        try {
+            const db = firebase.firestore();
+            const userDocRef = db.collection('users').doc(user.uid);
+            const userDoc = await userDocRef.get();
+
+            if (userDoc.exists) {
+                const firestoreData = userDoc.data(); // Ini adalah objek yang sudah diurai oleh Firebase JS SDK
+                
+                // Debug: Log data yang sudah diurai oleh Firebase JS SDK
+                //console.log("[Profile] User data from Firestore (raw JS SDK object):", JSON.stringify(firestoreData, null, 2));
+
+                // Ekstrak nilai sebenarnya secara langsung
+                userDataFromFirestore.name = firestoreData?.name || user.displayName || 'Unknown';
+                userDataFromFirestore.email = firestoreData?.email || user.email || '-';
+                userDataFromFirestore.role = firestoreData?.role || 'free'; // <-- Hapus .stringValue
+                userDataFromFirestore.plan = firestoreData?.plan || 'free'; // <-- Hapus .stringValue
+                userDataFromFirestore.photoURL = firestoreData?.photoURL || user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || "U");
+                
+                // Ekstrak isPremium dan valid_until (juga langsung)
+                userDataFromFirestore.isPremium = firestoreData?.isPremium || false;
+                if (firestoreData?.valid_until) { // valid_until akan menjadi objek Timestamp
+                    userDataFromFirestore.valid_until = firestoreData.valid_until.toDate(); // Konversi Timestamp ke Date object
+                }
+
+                //console.log("[Profile] User data from Firestore (extracted for display):", userDataFromFirestore);
+            } else {
+                //console.warn(`[Profile] User document not found in Firestore for UID: ${user.uid}. Using default values.`);
+            }
+        } catch (error) {
+            globalAlert('Terjadi kesalahan. Silakan coba lagi.');
+            //console.error("[Profile] Error fetching user data from Firestore:", error);
+        }
+        // --- AKHIR LOGIKA BARU ---
+
+        // Ambil kuota dari backend (tetap dari /generate untuk saat ini)
+        let remainingQuota = "∞";
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: 'cek quota', model: 'basic' }),
+            });
+            if (res.ok) {
+                remainingQuota = res.headers.get('X-Remaining-Quota');
+            } else {
+                console.warn("[Profile] Failed to fetch quota from backend:", res.status, res.statusText);
+            }
+        } catch (error) {
+            console.error("[Profile] Error fetching quota from backend:", error);
+        }
+
+        renderUserProfile(userDataFromFirestore, remainingQuota);
+
+    } else {
+        btn.innerHTML = `
+            <button id="googleLoginBtn" class="cursor-pointer">
+                <img src="/daffadevhosting/assets/images/icons/G-icon.png" alt="Login">
+            </button>
+        `;
+        document.getElementById("googleLoginBtn").addEventListener("click", () => {
+            loginModal.classList.remove("hidden");
+        });
+    }
 });
 
 function renderUserProfile(user, quota) {
-  if (!user) {
-    console.warn("⚠️ Tidak ada user data dikirim dari backend.");
-    return;
-  }
+    if (!user) {
+        console.warn("⚠️ Tidak ada user data dikirim untuk renderUserProfile.");
+        return;
+    }
 
-  document.getElementById("profileName").textContent = user.name || "Anonim";
-  document.getElementById("profileEmail").textContent = user.email || "-";
-  document.getElementById("profileRole").textContent = user.role || "free";
-  document.getElementById("profilePlan").textContent = user.plan || "free";
-  document.getElementById("profileQuota").textContent = `Sisa kuota: ${quota !== undefined && quota !== null ? quota : "∞"}`;
-  document.getElementById("profileAvatar").src = user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name || "U");
+    document.getElementById("profileName").textContent = user.name || "Anonim";
+    document.getElementById("profileEmail").textContent = user.email || "-";
+    document.getElementById("profileRole").textContent = user.role || "free";
+    document.getElementById("profilePlan").textContent = user.plan || "free";
+    
+    const validUntilElement = document.getElementById("profileValidUntil");
+    if (validUntilElement) {
+        if (user.valid_until) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            validUntilElement.textContent = `Berlaku hingga: ${user.valid_until.toLocaleDateString('id-ID', options)}`;
+        } else {
+            validUntilElement.textContent = `Berlaku hingga: N/A`;
+        }
+    }
 
+    document.getElementById("profileQuota").textContent = `Sisa kuota: ${quota !== undefined && quota !== null ? quota : "∞"}`;
+    document.getElementById("profileAvatar").src = user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name || "U");
 }
+
+async function sendPrompt(prompt, selectedModelId) {
+    const isCodingMode = localStorage.getItem("codingMode") === "on";
+
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                prompt,
+                model: selectedModelId,
+                mode: "initial",
+                coding: isCodingMode
+            })
+        });
+
+        const data = await res.json();
+        console.log("✅ AI Response:", data.output);
+        return data.output;
+    } catch (err) {
+            console.error("❌ Error:", err.message);
+        }
+    }
 </script>
+
+
           <div class="relative p-4 overflow-y-auto mx-auto h-screen max-w-[1200px] w-full scrollbar-hidden">
-        <div class="grid grid-cols-1 mx-auto md:mt-14 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 mx-auto mt-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
     <div class="glassmorph rounded-xl overflow-hidden shadow-lg card-hover">
         <div class="glass px-6 py-5 bg-blue-100 border-b border-blue-200">
@@ -434,20 +543,20 @@ function renderUserProfile(user, quota) {
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Tanpa iklan</li>
         </ul>
 
-        <button
+        <!-- <button
             class="pay-midtrans-button mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
             data-amount="24000"
             data-plan="medium"
             style="display: none;"
         >
-        Bayar dengan Midtrans</button>
+        Bayar dengan Midtrans</button> -->
         <div
             id="paypal-buttons-medium"
             data-plan="medium"
             data-amount="24000"
-            class="paypal-buttons-container w-full mt-2"
+            class="paypal-buttons-container w-full mt-8"
             style="display: none;" ></div>
-        <p class="login-message text-center text-red-500 text-sm mt-2 hidden">Harap login untuk membayar.</p>
+        <p class="login-message text-center text-red-500 text-sm mt-8 hidden">Harap login untuk membayar.</p>
         </div>
     </div>
 
@@ -471,19 +580,19 @@ function renderUserProfile(user, quota) {
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: Mistral 7B</li>
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Tanpa batasan fitur</li>
         </ul>
-        <button
+        <!-- <button
             class="pay-midtrans-button mt-8 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
             data-amount="38000"
             data-plan="advanced"
         >
-        Bayar dengan Midtrans</button>
+        Bayar dengan Midtrans</button> -->
         <div
             id="paypal-buttons-advanced"
             data-plan="advanced"
             data-amount="38000"
-            class="paypal-buttons-container w-full mt-2"
+            class="paypal-buttons-container w-full mt-8"
             style="display: none;" ></div>
-        <p class="login-message text-center text-red-500 text-sm mt-2 hidden">Harap login untuk membayar.</p>
+        <p class="login-message text-center text-red-500 text-sm mt-8 hidden">Harap login untuk membayar.</p>
         </div>
     </div>
 
@@ -504,19 +613,19 @@ function renderUserProfile(user, quota) {
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: Deepseek 32B</li>
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Powerful reasoning & output</li>
         </ul>
-        <button
+       <!-- <button
             class="pay-midtrans-button mt-8 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
             data-amount="69000"
             data-plan="expert"
         >
-        Bayar dengan Midtrans</button>
+        Bayar dengan Midtrans</button> -->
         <div
             id="paypal-buttons-expert"
             data-plan="expert"
             data-amount="69000"
-            class="paypal-buttons-container w-full mt-2"
+            class="paypal-buttons-container w-full mt-8"
             style="display: none;" ></div>
-        <span class="login-message text-center text-red-500 text-sm mt-2 hidden">Harap login untuk membayar.</span>
+        <span class="login-message text-center text-red-500 text-sm mt-8 hidden">Harap login untuk membayar.</span>
         </div>
     </div>
     </div>
@@ -525,59 +634,42 @@ function renderUserProfile(user, quota) {
 </div>
 
 <script>
-const BACKEND_BASE_URL = 'https://ui-transform.daffadev.workers.dev'; // <-- Ganti dengan URL Cloudflare Worker Kamu!
+const BACKEND_BASE_URL = 'https://ui-transform.daffadev.workers.dev'; // <-- Ganti dengan URL Cloudflare
 let currentUser = null;
 
 firebase.auth().onAuthStateChanged(user => {
     currentUser = user;
 
-    // Sembunyikan semua tombol pembayaran (Midtrans & PayPal containers) secara default
-    const midtransButtons = document.querySelectorAll('.pay-midtrans-button');
+    //const midtransButtons = document.querySelectorAll('.pay-midtrans-button');
     const paypalContainers = document.querySelectorAll('.paypal-buttons-container');
     const loginMessages = document.querySelectorAll('.login-message');
 
     if (user) {
-        // Pengguna sudah login
-        loginMessages.forEach(message => {
-            message.style.display = 'none'; // Sembunyikan pesan login
-        });
-
-        midtransButtons.forEach(button => {
-            button.style.display = 'block'; // Tampilkan tombol Midtrans
-        });
+        loginMessages.forEach(message => { message.style.display = 'none'; });
+        //midtransButtons.forEach(button => { button.style.display = 'block'; });
 
         paypalContainers.forEach(container => {
-            container.style.display = 'block'; // Tampilkan container PayPal
-            // Sekarang kita akan merender tombol PayPal di sini
+            container.style.display = 'block';
             const plan = container.dataset.plan;
             const amountIDR = parseInt(container.dataset.amount);
-            let amountUSD = (amountIDR / 15000).toFixed(2); // Sesuaikan konversi dollar
+            let amountUSD = (amountIDR / 15800).toFixed(2);
 
-            // Render tombol PayPal untuk setiap container
+            // Debug: Log plan dan amount yang akan dirender
+            //console.log(`[Frontend] Rendering PayPal button for plan: ${plan}, amountUSD: ${amountUSD}, container: ${container.id}`);
             renderPayPalButton(plan, amountUSD, container.id);
         });
 
     } else {
-        // Pengguna belum login
-        loginMessages.forEach(message => {
-            message.style.display = 'block'; // Tampilkan pesan login
-        });
-
-        midtransButtons.forEach(button => {
-            button.style.display = 'none'; // Sembunyikan tombol Midtrans
-        });
-
+        loginMessages.forEach(message => { message.style.display = 'block'; });
+       // midtransButtons.forEach(button => { button.style.display = 'none'; });
         paypalContainers.forEach(container => {
-            container.style.display = 'none'; // Sembunyikan container PayPal
-            container.innerHTML = ''; // Hapus tombol PayPal yang mungkin sudah dirender
+            container.style.display = 'none';
+            container.innerHTML = '';
         });
     }
 });
 
-// Fungsi untuk me-render tombol PayPal
-// Ini membantu menghindari rendering ulang yang tidak perlu
 function renderPayPalButton(plan, amountUSD, containerId) {
-    // Pastikan container bersih sebelum merender
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = '';
@@ -590,11 +682,16 @@ function renderPayPalButton(plan, amountUSD, containerId) {
             label: 'paypal'
         },
         createOrder: async function(data, actions) {
-            if (!currentUser) { // Fallback check
+            if (!currentUser) {
                 globalAlert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
                 return actions.reject('User not logged in');
             }
             const idToken = await currentUser.getIdToken();
+            const customIdString = `${currentUser.uid}:${plan}`; // String custom_id yang akan dikirim
+
+            // Debug: Log data yang akan dikirim ke create-order backend
+            //console.log(`[Frontend] createOrder: Sending to backend - plan: ${plan}, amountUSD: ${amountUSD}, custom_id: ${customIdString}`);
+
             try {
                 const res = await fetch(`${BACKEND_BASE_URL}/api/paypal/create-order`, {
                     method: 'POST',
@@ -606,30 +703,36 @@ function renderPayPalButton(plan, amountUSD, containerId) {
                         amount: amountUSD,
                         currency_code: 'USD',
                         description: `Pembelian Paket ${plan}`,
-                        // --- Tambahkan custom_id di sini untuk mengirim UID pengguna ---
-                        custom_id: `${currentUser.uid}:${plan}`,
+                        plan: plan,
+                        custom_id: customIdString, // Mengirim custom_id
                     })
                 });
                 const order = await res.json();
+                // Debug: Log respons dari create-order backend
+                //console.log(`[Frontend] createOrder: Response from backend -`, order);
+
                 if (order.id) {
                     return order.id;
                 } else {
-                    console.error('Failed to create PayPal order (no ID):', order.details || order.error || order);
+                    //console.error('Failed to create PayPal order (no ID):', order.details || order.error || order);
                     globalAlert('Terjadi kesalahan saat membuat pesanan PayPal. Silakan coba lagi.');
                     throw new Error('No order ID from backend.');
                 }
             } catch (error) {
-                console.error('Error creating PayPal order:', error);
+                //console.error('Error creating PayPal order:', error);
                 globalAlert('Terjadi kesalahan jaringan saat membuat pesanan PayPal.');
                 throw error;
             }
         },
         onApprove: async function(data, actions) {
-            if (!currentUser) { // Fallback check
+            if (!currentUser) {
                 globalAlert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
                 return actions.reject('User not logged in');
             }
             const idToken = await currentUser.getIdToken();
+            // Debug: Log orderID yang akan dikirim ke capture-order backend
+            //console.log(`[Frontend] onApprove: Capturing orderID: ${data.orderID}`);
+
             try {
                 const res = await fetch(`${BACKEND_BASE_URL}/api/paypal/capture-order`, {
                     method: 'POST',
@@ -641,34 +744,35 @@ function renderPayPalButton(plan, amountUSD, containerId) {
                 });
 
                 const transaction = await res.json();
+                // Debug: Log respons dari capture-order backend
+                //console.log(`[Frontend] onApprove: Response from capture-order backend -`, transaction);
+
                 if (transaction.status === 'COMPLETED') {
                     globalAlert('Pembayaran berhasil!');
-                    window.location.href = './success';
+                    //window.location.href = './success';
                 } else {
                     globalAlert('Pembayaran tidak selesai. Status: ' + transaction.status);
-                    window.location.href = './error';
+                    //window.location.href = './error';
                 }
             } catch (error) {
-                console.error('Error capturing PayPal payment:', error);
+                //console.error('Error capturing PayPal payment:', error);
                 globalAlert('Terjadi kesalahan saat menyelesaikan pembayaran PayPal.');
-                window.location.href = './error';
+                //window.location.href = './error';
             } finally {
                 // Setelah selesai, refresh status tombol atau halaman
             }
         },
         onCancel: function(data) {
-            console.log('Payment cancelled by user:', data);
+            //console.log('Payment cancelled by user:', data);
             globalAlert('Pembayaran PayPal dibatalkan.');
         },
         onError: function(err) {
-            console.error('An error occurred with PayPal:', err);
+            //console.error('An error occurred with PayPal:', err);
             globalAlert('Terjadi kesalahan dengan PayPal. Silakan coba lagi.');
         }
-    }).render(`#${containerId}`); // Render ke div spesifik
+    }).render(`#${containerId}`);
 }
 
-
-// Event listener untuk tombol Midtrans (menggunakan class baru .pay-midtrans-button)
 document.querySelectorAll('.pay-midtrans-button').forEach((btn) => {
   btn.addEventListener('click', async () => {
     if (!currentUser) {
@@ -694,12 +798,14 @@ document.querySelectorAll('.pay-midtrans-button').forEach((btn) => {
           body: JSON.stringify({ plan, amount: amountIDR })
         });
 
-        const { token } = await res.json();
+        // Dapatkan token DAN orderId dari respons backend
+        const { token, orderId } = await res.json();
 
         if (token) {
           snap.pay(token, {
-            onSuccess: result => window.location.href = './success',
-            onPending: result => window.location.href = './pending',
+            // Gunakan orderId yang diterima dari backend
+            onSuccess: result => window.location.href = `./success?order_id=${orderId}`,
+            onPending: result => window.location.href = `./pending?order_id=${orderId}`,
             onError: err => {
               globalAlert('Gagal memproses pembayaran Midtrans.');
               console.error(err);
@@ -719,6 +825,7 @@ document.querySelectorAll('.pay-midtrans-button').forEach((btn) => {
 });
 
 </script>
+
               <footer class="text-sm text-center text-gray-500 py-6  border-t border-gray-700">
         &copy; 2025 UI Generator by <a href="https://daffadevhosting.github.io" target="_blank" class="font-bold text-blue-400">L Y Я A</a>. All rights reserved.
       </footer>
@@ -1241,6 +1348,7 @@ loginBtn.addEventListener('click', async () => {
 
       <!-- Kuota -->
       <p id="profileQuota" class="mt-4 text-sm text-zinc-300 italic"></p>
+      <p id="profileValidUntil" class="mt-4 text-sm text-zinc-300 italic"></p>
 
       <!-- Tombol -->
     <div class="flex justify-between items-center-safe w-full">
@@ -1261,6 +1369,7 @@ function showUserProfileModal(user, quota = "∞") {
   document.getElementById('userProfileModal').classList.add('hidden');
 });
 </script>
+
             <!-- Global Alert Container -->
     <div id="global-alert-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] w-full max-w-xl px-4 pointer-events-none"></div>
     <script>
